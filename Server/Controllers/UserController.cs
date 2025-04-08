@@ -51,5 +51,38 @@ namespace Server.Controllers
 
             else return BadRequest("Incorrect password");
         }
+
+        [HttpGet]
+        [Route("v1/GetUsername")]
+        public async Task<IActionResult> GetUsernameAsync(string userId)
+        {
+            User? foundUser = await dbContext.Users.FindAsync(userId);
+            if (foundUser == null) return BadRequest("User with given id not found");
+
+            return Ok(foundUser.UserName);
+        }
+
+        [HttpPost]
+        [Route("v1/PostAddFriend")]
+        public async Task<IActionResult> PostAddFriendAsync(string friendId)
+        {
+            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null) return BadRequest("Must be logged in");
+
+            User friendToAdd = await dbContext.Users.FindAsync(friendId);
+            if (friendToAdd == null) return BadRequest("User with given id not found");
+
+            if (currentUser.Id == friendToAdd.Id) return BadRequest("Cannot add self as friend");
+
+            // Add check for friend already being added
+            Friends newFriends = new Friends();
+            newFriends.User1Id = currentUser.Id;
+            newFriends.User2Id = friendToAdd.Id;
+
+            await dbContext.Friends.AddAsync(newFriends);
+            await dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }
