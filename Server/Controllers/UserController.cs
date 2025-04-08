@@ -103,6 +103,26 @@ namespace Server.Controllers
             return Ok(friendIds);
         }
 
+        [HttpPost]
+        [Route("v1/PostRemoveFriend")]
+        public async Task<IActionResult> PostRemoveFriend(string friendId)
+        {
+            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null) return BadRequest("Must be logged in");
+
+            if (currentUser.Id == friendId) return BadRequest("Cannot remove self as friend");
+
+            Friends friends = await dbContext.Friends.FindAsync(currentUser.Id, friendId);
+            friends ??= await dbContext.Friends.FindAsync(friendId, currentUser.Id);
+
+            if (friends == null) return BadRequest("User with given id is not a friend");
+
+            dbContext.Friends.Remove(friends);
+            await dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
         private async Task<bool> FriendAlreadyAddedAsync(string user1Id, string user2Id)
         {
             Friends foundFriends = await dbContext.Friends.FindAsync(user1Id, user2Id);
@@ -113,6 +133,7 @@ namespace Server.Controllers
 
             return false;
         }
+
         // TODO: get a better name to differentiate between this and http method
         private IEnumerable<string>? GetFriendIds(string userId)
         {
