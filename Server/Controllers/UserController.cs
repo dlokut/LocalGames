@@ -43,7 +43,12 @@ namespace Server.Controllers
 
             Microsoft.AspNetCore.Identity.SignInResult signInResult = await _signInManager.CheckPasswordSignInAsync(user, password, false);
 
-            if (signInResult.Succeeded) return Ok();
+            if (signInResult.Succeeded)
+            {
+                await _signInManager.PasswordSignInAsync(user, password, true, false);
+                return Ok();
+            }
+
             else return BadRequest("Incorrect password");
         }
     }
