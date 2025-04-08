@@ -74,6 +74,11 @@ namespace Server.Controllers
 
             if (currentUser.Id == friendToAdd.Id) return BadRequest("Cannot add self as friend");
 
+            if (await FriendAlreadyAddedAsync(currentUser.Id, friendToAdd.Id))
+            {
+                return BadRequest("Friend already added");
+            }
+
             // Add check for friend already being added
             Friends newFriends = new Friends();
             newFriends.User1Id = currentUser.Id;
@@ -83,6 +88,51 @@ namespace Server.Controllers
             await dbContext.SaveChangesAsync();
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("v1/GetFriendIds")]
+        public async Task<IActionResult> GetFriendIdsAsync()
+        {
+            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null) return BadRequest("Must be logged in");
+
+            IEnumerable<string>? friendIds = GetFriendIds(currentUser.Id);
+            if (friendIds == null) return Ok("User has no friends");
+
+            return Ok(friendIds);
+        }
+
+        private async Task<bool> FriendAlreadyAddedAsync(string user1Id, string user2Id)
+        {
+            Friends foundFriends = await dbContext.Friends.FindAsync(user1Id, user2Id);
+            if (foundFriends != null) return true;
+
+            foundFriends = await dbContext.Friends.FindAsync(user2Id, user1Id);
+            if (foundFriends != null) return true;
+
+            return false;
+        }
+        // TODO: get a better name to differentiate between this and http method
+        private IEnumerable<string>? GetFriendIds(string userId)
+        {
+            List<string> friendIds = new List<string>();
+
+            var foundFriends = dbContext.Friends.Where(f => (f.User1Id == userId) || (f.User2Id == userId));
+
+            if (!foundFriends.Any()) return null;
+
+            foreach (Friends friends in foundFriends)
+            {
+                // Figures out whether given user id is in friend 1 or 2, then uses the other friend for the friend id
+                string friendId;
+                if (friends.User1Id == userId) friendId = friends.User2Id;
+                else friendId = friends.User1Id;
+
+                friendIds.Add(friendId);
+            }
+
+            return friendIds;
         }
     }
 }
