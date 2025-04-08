@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Server.Database;
 
@@ -12,6 +13,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContextFactory<ServerDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("sqlite")));
+
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<ServerDbContext>();
 
 var app = builder.Build();
 
