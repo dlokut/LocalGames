@@ -13,7 +13,7 @@ namespace Server.Database
 
         public DbSet<BlockedUser> BlockedUsers { get; set; }
 
-        public DbSet<BannedUsers> BannedUsers { get; set; }
+        public DbSet<BannedUser> BannedUsers { get; set; }
 
         public DbSet<ProfileComment> Comments { get; set; }
 

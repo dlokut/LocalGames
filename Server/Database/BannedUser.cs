@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Server.Database
 {
-    public class BannedUsers
+    public class BannedUser
     {
         [Key]
         [ForeignKey(nameof(User))]

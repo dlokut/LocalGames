@@ -15,5 +15,7 @@ namespace Server.Database
         public Game Game { get; set; }
 
         public User User { get; set; }
+
+        public int PlaytimeMins { get; set; }
     }
 }

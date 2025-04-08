@@ -5,7 +5,7 @@ namespace Server.Database
     public class Game
     {
         [Key]
-        public Guid GameId { get; set; }
+        public Guid Id { get; set; }
 
         public string IgdbSlug { get; set; }
 

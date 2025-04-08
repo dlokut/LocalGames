@@ -5,12 +5,12 @@ namespace Server.Database
 {
     public class User : IdentityUser
     {
-        public bool ProfileCommentsEnabled { get; set; }
+        public bool ProfileCommentsEnabled { get; set; } = true;
 
-        public string ProfilePicFileName { get; set; }
+        public string? ProfilePicFileName { get; set; } = null;
 
-        public string BackgroundPicFileName { get; set; }
+        public string? BackgroundPicFileName { get; set; } = null;
 
-        public bool ProfileIsPrivate { get; set; }
+        public bool ProfileIsPrivate { get; set; } = false;
     }
 }
