@@ -31,15 +31,21 @@ namespace Server.Controllers
         [Route("v1/PostRegister")]
         public async Task<ActionResult> Register([FromBody] string password, string username)
         {
-            User newUser = new User();
-            newUser.UserName = username;
-
             // First, checks if X-Forwarded-For header has an ip address, if not, get ip directly.
             // This is incase use is connecting behind a proxy (might also happen if server is set up behind a reverse proxy)
             string userIpAddress = HttpContext.Request.Headers[FORWARDED_IP_HEADER];
             userIpAddress ??= HttpContext.Connection.RemoteIpAddress.ToString();
 
-            newUser.IpAddress = userIpAddress;
+            if (await IpAddressIsBanned(userIpAddress))
+            {
+                return Forbid();
+            }
+
+            User newUser = new User()
+            {
+                UserName = username,
+                IpAddress = userIpAddress
+            };
 
             IdentityResult registerResult = await userManager.CreateAsync(newUser, password);
 
@@ -69,6 +75,13 @@ namespace Server.Controllers
             }
 
             else return BadRequest("Incorrect password");
+        }
+
+        private async Task<bool> IpAddressIsBanned(string ipAddress)
+        {
+            List<BannedUser> bannedUsersWithIp = dbContext.BannedUsers.Where(bu => bu.IpAddress == ipAddress).ToList();
+
+            return bannedUsersWithIp.Any();
         }
 
         # endregion
