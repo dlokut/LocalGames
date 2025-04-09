@@ -43,6 +43,12 @@ namespace Server.Controllers
 
             IdentityResult registerResult = await userManager.CreateAsync(newUser, password);
 
+            bool FIRST_USER = dbContext.Users.Count() == 1;
+            if (FIRST_USER)
+            {
+                await userManager.AddToRoleAsync(newUser, "Admin");
+            }
+
             if (registerResult.Succeeded) return Ok();
             else return BadRequest(registerResult.Errors);
         }
@@ -263,6 +269,40 @@ namespace Server.Controllers
         {
             BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(blockedId, blockerId);
             return blocked != null;
+        }
+
+        #endregion
+
+        #region banning
+
+        [HttpPost]
+        [Route("v1/PostBanUser")]
+        public async Task<IActionResult> PostBanUserAsync(string userId)
+        {
+            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null) return BadRequest("Must be logged in");
+
+            if ((await userManager.IsInRoleAsync(currentUser, "Admin")) == false)
+            {
+                return Forbid();
+            }
+
+            if (currentUser.Id == userId) return BadRequest("Cannot ban self");
+
+            // TODO: Make check for if user is admin
+            User userToBan = await dbContext.Users.FindAsync(userId);
+            if (userToBan == null) return BadRequest("User with given id not found");
+
+            BannedUser bannedUser = new BannedUser()
+            {
+                UserId = userToBan.Id,
+                IpAddress = userToBan.IpAddress
+            };
+
+            await dbContext.BannedUsers.AddAsync(bannedUser);
+            await dbContext.SaveChangesAsync();
+
+            return Ok();
         }
 
         #endregion
