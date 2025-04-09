@@ -22,6 +22,8 @@ namespace Server.Controllers
             _signInManager = signInManager;
         }
 
+        # region login/register
+
         [HttpPost]
         [Route("v1/PostRegister")]
         public async Task<ActionResult> Register([FromBody] string password, string username)
@@ -53,6 +55,8 @@ namespace Server.Controllers
             else return BadRequest("Incorrect password");
         }
 
+        # endregion
+
         [HttpGet]
         [Route("v1/GetUsername")]
         public async Task<IActionResult> GetUsernameAsync(string userId)
@@ -73,6 +77,7 @@ namespace Server.Controllers
             return Ok(userIds);
         }
 
+        #region friends
         [HttpPost]
         [Route("v1/PostAddFriend")]
         public async Task<IActionResult> PostAddFriendAsync(string friendId)
@@ -90,7 +95,6 @@ namespace Server.Controllers
                 return BadRequest("Friend already added");
             }
 
-            // Add check for friend already being added
             Friends newFriends = new Friends();
             newFriends.User1Id = currentUser.Id;
             newFriends.User2Id = friendToAdd.Id;
@@ -164,5 +168,46 @@ namespace Server.Controllers
 
             return friendIds;
         }
+
+        #endregion
+
+        #region blocking
+
+        [HttpPost]
+        [Route("v1/PostBlock")]
+        public async Task<IActionResult> PostBlock(string blockedId)
+        {
+            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null) return BadRequest("Must be logged in");
+
+            User userToBlock = await dbContext.Users.FindAsync(blockedId);
+            if (userToBlock == null) return BadRequest("User with given id not found");
+
+            if (currentUser.Id == userToBlock.Id) return BadRequest("Cannot block self");
+
+            if (await UserAlreadyBlockedAsync(currentUser.Id, userToBlock.Id))
+            {
+                return BadRequest("User already blocked");
+            }
+
+            BlockedUser blocked = new BlockedUser()
+            {
+                BlockerId = currentUser.Id,
+                BlockedId = userToBlock.Id
+            };
+
+            await dbContext.BlockedUsers.AddAsync(blocked);
+            await dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        private async Task<bool> UserAlreadyBlockedAsync(string blockerId, string blockedId)
+        {
+            BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(blockedId, blockerId);
+            return blocked != null;
+        }
+
+        #endregion
     }
 }
