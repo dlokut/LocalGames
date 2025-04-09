@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Server.Database;
 
 namespace Server.Controllers
@@ -60,6 +61,16 @@ namespace Server.Controllers
             if (foundUser == null) return BadRequest("User with given id not found");
 
             return Ok(foundUser.UserName);
+        }
+
+        [HttpGet]
+        [Route("v1/GetAllUserIds")]
+        public async Task<IActionResult> GetAllUserIds()
+        {
+            List<User> allUsers = await dbContext.Users.ToListAsync();
+            List<string> userIds = allUsers.Select(user => user.Id).ToList();
+
+            return Ok(userIds);
         }
 
         [HttpPost]
