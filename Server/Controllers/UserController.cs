@@ -126,11 +126,9 @@ namespace Server.Controllers
         private async Task<bool> FriendAlreadyAddedAsync(string user1Id, string user2Id)
         {
             Friends foundFriends = await dbContext.Friends.FindAsync(user1Id, user2Id);
-            if (foundFriends != null) return true;
+            foundFriends ??= await dbContext.Friends.FindAsync(user2Id, user1Id);
 
-            foundFriends = await dbContext.Friends.FindAsync(user2Id, user1Id);
             if (foundFriends != null) return true;
-
             return false;
         }
 
