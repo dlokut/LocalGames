@@ -66,6 +66,11 @@ namespace Server.Controllers
             User user = await userManager.FindByNameAsync(username);
             if (user == null) return BadRequest("Username not found");
 
+            if (await UserIsBanned(user.Id))
+            {
+                return Forbid();
+            }
+
             Microsoft.AspNetCore.Identity.SignInResult signInResult = await _signInManager.CheckPasswordSignInAsync(user, password, false);
 
             if (signInResult.Succeeded)
@@ -82,6 +87,13 @@ namespace Server.Controllers
             List<BannedUser> bannedUsersWithIp = dbContext.BannedUsers.Where(bu => bu.IpAddress == ipAddress).ToList();
 
             return bannedUsersWithIp.Any();
+        }
+
+        private async Task<bool> UserIsBanned(string userId)
+        {
+            BannedUser? bannedUser = await dbContext.BannedUsers.FindAsync(userId);
+
+            return bannedUser != null;
         }
 
         # endregion
