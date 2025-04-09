@@ -43,7 +43,7 @@ namespace Server.Controllers
 
             IdentityResult registerResult = await userManager.CreateAsync(newUser, password);
 
-            bool FIRST_USER = dbContext.Users.Count() <= 2;
+            bool FIRST_USER = dbContext.Users.Count() == 1;
             if (FIRST_USER)
             {
                 await userManager.AddToRoleAsync(newUser, "Admin");
@@ -304,6 +304,29 @@ namespace Server.Controllers
             };
 
             await dbContext.BannedUsers.AddAsync(bannedUser);
+            await dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("v1/PostUnbanUser")]
+        public async Task<IActionResult> PostUnbanUser(string userId)
+        {
+            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null) return BadRequest("Must be logged in");
+
+            if ((await userManager.IsInRoleAsync(currentUser, "Admin")) == false)
+            {
+                return Forbid();
+            }
+
+            if (currentUser.Id == userId) return BadRequest("Cannot unban self");
+
+            BannedUser bannedUser = dbContext.BannedUsers.Find(userId);
+            if (bannedUser == null) return BadRequest("User with given id already not banned");
+
+            dbContext.BannedUsers.Remove(bannedUser);
             await dbContext.SaveChangesAsync();
 
             return Ok();
