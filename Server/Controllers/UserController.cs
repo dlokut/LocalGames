@@ -43,7 +43,7 @@ namespace Server.Controllers
 
             IdentityResult registerResult = await userManager.CreateAsync(newUser, password);
 
-            bool FIRST_USER = dbContext.Users.Count() == 1;
+            bool FIRST_USER = dbContext.Users.Count() <= 2;
             if (FIRST_USER)
             {
                 await userManager.AddToRoleAsync(newUser, "Admin");
@@ -289,9 +289,13 @@ namespace Server.Controllers
 
             if (currentUser.Id == userId) return BadRequest("Cannot ban self");
 
-            // TODO: Make check for if user is admin
             User userToBan = await dbContext.Users.FindAsync(userId);
             if (userToBan == null) return BadRequest("User with given id not found");
+
+            if ((await userManager.IsInRoleAsync(userToBan, "Admin"))) 
+            {
+                return Forbid();
+            }
 
             BannedUser bannedUser = new BannedUser()
             {
