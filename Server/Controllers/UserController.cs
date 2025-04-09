@@ -202,6 +202,25 @@ namespace Server.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        [Route("v1/PostUnblock")]
+        public async Task<IActionResult> PostUnblockAsync(string blockedId)
+        {
+            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null) return BadRequest("Must be logged in");
+
+            if (currentUser.Id == blockedId) return BadRequest("Cannot unblock self");
+
+            BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(blockedId, currentUser.Id);
+
+            if (blocked == null) return BadRequest("User with given id is not blocked");
+
+            dbContext.BlockedUsers.Remove(blocked);
+            await dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
         private async Task<bool> UserAlreadyBlockedAsync(string blockerId, string blockedId)
         {
             BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(blockedId, blockerId);
