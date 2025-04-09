@@ -233,6 +233,19 @@ namespace Server.Controllers
             return Ok(blocked != null);
         }
 
+        [HttpGet]
+        [Route("v1/GetIsBlockedBy")]
+        public async Task<IActionResult> GetIsBlockedBy(string blockerId)
+        {
+            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null) return BadRequest("Must be logged in");
+
+            BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(currentUser.Id, blockerId);
+
+            return Ok(blocked != null);
+        }
+
+
         private async Task<bool> UserAlreadyBlockedAsync(string blockerId, string blockedId)
         {
             BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(blockedId, blockerId);
