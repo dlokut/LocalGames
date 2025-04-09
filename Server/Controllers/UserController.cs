@@ -9,11 +9,14 @@ namespace Server.Controllers
     [Route("[controller]")]
     public class UserController : Controller
     {
+        private const string FORWARDED_IP_HEADER = "X-Forwarded-For";
+
         private readonly ServerDbContext dbContext;
 
         private readonly UserManager<User> userManager;
 
         private readonly SignInManager<User> _signInManager;
+
 
         public UserController(UserManager<User> userManager, ServerDbContext dbContext, SignInManager<User> signInManager)
         {
@@ -30,6 +33,13 @@ namespace Server.Controllers
         {
             User newUser = new User();
             newUser.UserName = username;
+
+            // First, checks if X-Forwarded-For header has an ip address, if not, get ip directly.
+            // This is incase use is connecting behind a proxy (might also happen if server is set up behind a reverse proxy)
+            string userIpAddress = HttpContext.Request.Headers[FORWARDED_IP_HEADER];
+            userIpAddress ??= HttpContext.Connection.RemoteIpAddress.ToString();
+
+            newUser.IpAddress = userIpAddress;
 
             IdentityResult registerResult = await userManager.CreateAsync(newUser, password);
 
@@ -73,6 +83,9 @@ namespace Server.Controllers
         {
             List<User> allUsers = await dbContext.Users.ToListAsync();
             List<string> userIds = allUsers.Select(user => user.Id).ToList();
+
+            string test = HttpContext.Request.Headers[FORWARDED_IP_HEADER];
+            string test2 = HttpContext.Connection.RemoteIpAddress.ToString();
 
             return Ok(userIds);
         }

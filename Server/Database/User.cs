@@ -12,5 +12,7 @@ namespace Server.Database
         public string? BackgroundPicFileName { get; set; } = null;
 
         public bool ProfileIsPrivate { get; set; } = false;
+
+        public string IpAddress { get; set; }
     }
 }
