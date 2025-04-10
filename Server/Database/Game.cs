@@ -7,14 +7,20 @@ namespace Server.Database
         [Key]
         public Guid Id { get; set; }
 
-        public long IgdbId { get; set; }
+        public long? IgdbId { get; set; }
 
         public int FileSize { get; set; }
 
         public string Name { get; set; }
 
-        public string Summary { get; set; }
+        public string? Summary { get; set; }
 
-        public string CoverUrl { get; set; }
+        public string? CoverUrl { get; set; }
+
+        public List<Playtime> Playtimes { get; set; }
+
+        public List<GameSaves> Saves { get; set; }
+
+        public List<Artwork> Artworks { get; set; }
     }
 }

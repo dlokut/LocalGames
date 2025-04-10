@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Server.Database;
 
@@ -10,9 +11,11 @@ using Server.Database;
 namespace Server.Migrations
 {
     [DbContext(typeof(ServerDbContext))]
-    partial class ServerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250410204513_gamecollections")]
+    partial class gamecollections
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -209,12 +212,13 @@ namespace Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CoverUrl")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("FileSize")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long?>("IgdbId")
+                    b.Property<long>("IgdbId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -222,6 +226,7 @@ namespace Server.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Summary")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
