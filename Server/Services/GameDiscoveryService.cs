@@ -10,11 +10,11 @@ public class GameDiscoveryService : BackgroundService, IDisposable
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            List<Game> games = GetGamesInDir(GAMES_DIR);
+            List<GameFile> games = GetGameFiles(GAMES_DIR + "/TestGame");
 
-            foreach (Game game in games)
+            foreach (GameFile game in games)
             {
-                Console.WriteLine(game.Name);
+                Console.WriteLine(game.Directory);
             }
             
             await Task.Delay(1000);
@@ -40,5 +40,22 @@ public class GameDiscoveryService : BackgroundService, IDisposable
         }
 
         return foundGames;
+    }
+
+    List<GameFile> GetGameFiles(string dir)
+    {
+        List<GameFile> foundGameFiles = new List<GameFile>();
+
+        foreach (string fileInDir in Directory.GetFiles(dir))
+        {
+            string filePathFromGameRoot = fileInDir.Substring(fileInDir.IndexOf('/') + 1);
+            
+            foundGameFiles.Add(new GameFile()
+            {
+                Directory = filePathFromGameRoot
+            });
+        }
+
+        return foundGameFiles;
     }
 }
