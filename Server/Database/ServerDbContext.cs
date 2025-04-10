@@ -27,6 +27,8 @@ namespace Server.Database
 
         public DbSet<Playtime> Playtimes { get; set; }
 
+        public DbSet<GameFile> GameFiles { get; set; }
+
 
     }
 }
