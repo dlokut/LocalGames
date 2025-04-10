@@ -115,9 +115,6 @@ namespace Server.Controllers
             List<User> allUsers = await dbContext.Users.ToListAsync();
             List<string> userIds = allUsers.Select(user => user.Id).ToList();
 
-            string test = HttpContext.Request.Headers[FORWARDED_IP_HEADER];
-            string test2 = HttpContext.Connection.RemoteIpAddress.ToString();
-
             return Ok(userIds);
         }
 
