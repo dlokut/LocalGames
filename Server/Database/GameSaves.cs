@@ -15,5 +15,7 @@ namespace Server.Database
         public Guid GameId { get; set; }
 
         public Game Game { get; set; }
+
+        public string Directory { get; set; }
     }
 }
