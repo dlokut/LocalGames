@@ -1,5 +1,5 @@
 ﻿using IGDB;
-using System.Threading.Tasks;
+using IGDB.Models;
 using IgdbGame = IGDB.Models.Game;
 
 namespace Server
@@ -30,6 +30,45 @@ namespace Server
 
             return foundGame.Id.Value;
 
+        }
+
+        public async Task<string> GetGameSummaryAsync(string gameIgdbId)
+        {
+            IgdbGame[] foundGames = await igdbClient.QueryAsync<IgdbGame>(IGDBClient.Endpoints.Games, 
+                query: $"where id = {gameIgdbId}; fields summary;");
+
+            IgdbGame foundGame = foundGames.First();
+
+            return foundGame.Summary;
+        }
+
+        public async Task<string?> GetCoverUrlAsync(string gameIgdbId)
+        {
+            string? coverId = await GetCoverIdAsync(gameIgdbId);
+
+            if (coverId == null)
+            {
+                return null;
+            }
+
+            string coverUrl = IGDB.ImageHelper.GetImageUrl(coverId, ImageSize.CoverBig);
+
+            return coverUrl;
+        }
+
+        private async Task<string?> GetCoverIdAsync(string gameIgdbId)
+        {
+            Cover[] foundCovers = await igdbClient.QueryAsync<Cover>(IGDBClient.Endpoints.Covers, 
+                query: $"where game = {gameIgdbId}; fields image_id;");
+
+            if (foundCovers.Length == 0)
+            {
+                return null;
+            }
+
+            Cover foundCover = foundCovers.First();
+
+            return foundCover.ImageId;
         }
 
         
