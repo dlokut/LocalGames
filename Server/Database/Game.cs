@@ -7,7 +7,7 @@ namespace Server.Database
         [Key]
         public Guid Id { get; set; }
 
-        public string IgdbSlug { get; set; }
+        public long IgdbId { get; set; }
 
         public int FileSize { get; set; }
 
