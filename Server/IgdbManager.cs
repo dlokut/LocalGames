@@ -1,6 +1,7 @@
 ﻿using IGDB;
 using IGDB.Models;
 using IgdbGame = IGDB.Models.Game;
+using IgdbArtwork = IGDB.Models.Artwork;
 
 namespace Server
 {
@@ -69,6 +70,19 @@ namespace Server
             Cover foundCover = foundCovers.First();
 
             return foundCover.ImageId;
+        }
+
+        public async Task<List<string>?> GetArtworkIdsAsync(string gameIgdbId)
+        {
+            IgdbArtwork[] foundArtworks = await igdbClient.QueryAsync<IgdbArtwork>(IGDBClient.Endpoints.Artworks, 
+                query: $"where game = {gameIgdbId}; fields image_id;");
+
+            if (foundArtworks.Length == 0)
+            {
+                return null;
+            }
+
+            return foundArtworks.Select(a => a.ImageId).ToList();
         }
 
         
