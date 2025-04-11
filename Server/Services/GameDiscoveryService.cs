@@ -161,26 +161,29 @@ public class GameDiscoveryService : BackgroundService
         return artworks;
     }
 
-    private async Task AddGameToDbAsync(Game game, List<GameFile> gameFiles, List<Artwork> artworks)
+    private async Task AddGameToDbAsync(Game game, List<GameFile> gameFiles, List<Artwork>? artworks)
     {
         using (IServiceScope scope = serviceProvider.CreateScope())
         {
             ServerDbContext dbContext = scope.ServiceProvider.GetRequiredService<ServerDbContext>();
 
             await dbContext.Games.AddAsync(game);
-            
-            foreach (Artwork artwork in artworks)
-            {
-                artwork.GameId = game.Id;
-            }
 
-            await dbContext.Artworks.AddRangeAsync(artworks);
+            if (artworks != null)
+            {
+                foreach (Artwork artwork in artworks)
+                {
+                    artwork.GameId = game.Id;
+                }
+                
+                await dbContext.Artworks.AddRangeAsync(artworks);
+            }
 
             foreach (GameFile gameFile in gameFiles)
             {
                 gameFile.GameId = game.Id;
             }
-
+                
             await dbContext.GameFiles.AddRangeAsync(gameFiles);
 
             await dbContext.SaveChangesAsync();
