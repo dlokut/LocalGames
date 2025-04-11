@@ -72,7 +72,26 @@ namespace Server
             return foundCover.ImageId;
         }
 
-        public async Task<List<string>?> GetArtworkIdsAsync(string gameIgdbId)
+        public async Task<List<string>?> GetArtworkUrlsAsync(long gameIgdbId)
+        {
+            List<string>? artworkIds = await GetArtworkIdsAsync(gameIgdbId);
+
+            if (artworkIds == null)
+            {
+                return null;
+            }
+
+            List<string> artworkUrls = new List<string>();
+
+            foreach (string id in artworkIds)
+            {
+                artworkUrls.Add(IGDB.ImageHelper.GetImageUrl(id, ImageSize.HD720));
+            }
+
+            return artworkUrls;
+        }
+        
+        private async Task<List<string>?> GetArtworkIdsAsync(long gameIgdbId)
         {
             IgdbArtwork[] foundArtworks = await igdbClient.QueryAsync<IgdbArtwork>(IGDBClient.Endpoints.Artworks, 
                 query: $"where game = {gameIgdbId}; fields image_id;");
