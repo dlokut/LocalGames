@@ -138,7 +138,7 @@ public class GameDiscoveryService : BackgroundService
         game.IgdbId = gameIgdbId;
 
         game.Summary = await igdbManager.GetGameSummaryAsync(gameIgdbId.Value);
-        game.CoverUrl = await igdbManager.GetCoverUrlAsync(gameIgdbId.Value);
+        game.CoverUrl = "https:" + await igdbManager.GetCoverUrlAsync(gameIgdbId.Value);
 
         return game;
     }
@@ -155,7 +155,7 @@ public class GameDiscoveryService : BackgroundService
         // TODO: Might not be very readable
         List<Artwork> artworks = artworkUrls.Select(url => new Artwork()
         {
-            ArtworkUrl = url
+            ArtworkUrl = "https:" + url
         }).ToList();
 
         return artworks;
