@@ -3,7 +3,7 @@ using IGDB.Models;
 using IgdbGame = IGDB.Models.Game;
 using IgdbArtwork = IGDB.Models.Artwork;
 
-namespace Server
+namespace Server.Managers
 {
     public class IgdbManager
     {
