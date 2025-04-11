@@ -22,5 +22,7 @@ namespace Server.Database
         public List<GameSaves> Saves { get; set; }
 
         public List<Artwork> Artworks { get; set; }
+        
+        public List<GameFile> GameFiles { get; set; }
     }
 }
