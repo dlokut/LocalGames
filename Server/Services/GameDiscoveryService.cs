@@ -4,6 +4,9 @@ namespace Server.Services;
 
 public class GameDiscoveryService : BackgroundService
 {
+
+    private readonly IServiceProvider serviceProvider;
+    
     private IgdbManager igdbManager;
 
     private Timer? serviceTimer = null;
@@ -13,6 +16,11 @@ public class GameDiscoveryService : BackgroundService
     private const int TIMER_INTERVAL_MS = 100 * 1000;
 
     private const int TIMER_START_DELAY_MS = 0;
+    
+    public GameDiscoveryService(IServiceProvider serviceProvider)
+    {
+        this.serviceProvider = serviceProvider;
+    }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -42,12 +50,11 @@ public class GameDiscoveryService : BackgroundService
             
             List<GameFile> gameFiles = GetGameFiles(gamePath);
             Game gameWithMetadata = await ApplyGameMetadata(foundGame);
+            gameWithMetadata.FileSize = GetTotalGameSize(gameFiles);
+            
             List<Artwork>? artworks = await GetArtworksAsync(gameWithMetadata.IgdbId.Value);
 
-            foreach (GameFile gameFile in gameFiles)
-            {
-                Console.WriteLine(gameFile.Directory + " " + gameFile.FileSizeBytes);
-            }
+            await AddGameToDbAsync(gameWithMetadata, gameFiles, artworks);
             
         }
 
@@ -127,5 +134,32 @@ public class GameDiscoveryService : BackgroundService
         }).ToList();
 
         return artworks;
+    }
+
+    private async Task AddGameToDbAsync(Game game, List<GameFile> gameFiles, List<Artwork> artworks)
+    {
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            ServerDbContext dbContext = scope.ServiceProvider.GetRequiredService<ServerDbContext>();
+
+            await dbContext.Games.AddAsync(game);
+            
+            foreach (Artwork artwork in artworks)
+            {
+                artwork.GameId = game.Id;
+            }
+
+            await dbContext.Artworks.AddRangeAsync(artworks);
+
+            foreach (GameFile gameFile in gameFiles)
+            {
+                gameFile.GameId = game.Id;
+            }
+
+            await dbContext.GameFiles.AddRangeAsync(gameFiles);
+
+            await dbContext.SaveChangesAsync();
+
+        }
     }
 }
