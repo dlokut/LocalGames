@@ -12,5 +12,7 @@ namespace Server.Database
         public Game Game { get; set; }
 
         public string Directory { get; set; }
+
+        public long FileSizeBytes { get; set; }
     }
 }
