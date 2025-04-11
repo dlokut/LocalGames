@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Server.Database
 {
-    [PrimaryKey(nameof(GameId), nameof(ArtworkId))]
+    [PrimaryKey(nameof(GameId), nameof(ArtworkUrl))]
     public class Artwork
     {
         [ForeignKey(nameof(Game))]
@@ -11,6 +11,6 @@ namespace Server.Database
 
         public Game Game { get; set; }
 
-        public string ArtworkId { get; set; }
+        public string ArtworkUrl { get; set; }
     }
 }
