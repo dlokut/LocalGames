@@ -9,7 +9,7 @@ namespace Server.Database
 
         public long? IgdbId { get; set; }
 
-        public int FileSize { get; set; }
+        public long FileSize { get; set; }
 
         public string Name { get; set; }
 
