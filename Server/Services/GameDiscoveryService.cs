@@ -98,4 +98,22 @@ public class GameDiscoveryService : BackgroundService
 
         return game;
     }
+
+    private async Task<List<Artwork>?> GetArtworksAsync(long igdbGameId)
+    {
+        List<string>? artworkUrls = await igdbManager.GetArtworkUrlsAsync(igdbGameId);
+
+        if (artworkUrls == null)
+        {
+            return null;
+        }
+
+        // TODO: Might not be very readable
+        List<Artwork> artworks = artworkUrls.Select(url => new Artwork()
+        {
+            ArtworkUrl = url
+        }).ToList();
+
+        return artworks;
+    }
 }
