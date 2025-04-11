@@ -89,12 +89,10 @@ public class GameDiscoveryService : BackgroundService
         return foundGameFiles;
     }
 
-    /*
-    private int GetTotalGameSize(List<GameFile> gameFiles)
+    private long GetTotalGameSize(List<GameFile> gameFiles)
     {
-        
+        return gameFiles.Select(gf => gf.FileSizeBytes).Sum();
     }
-    */
 
     private async Task<Game?> ApplyGameMetadata(Game game)
     {
