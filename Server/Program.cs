@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Server.Database;
+using Server.Managers;
 using Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,17 @@ builder.Services.AddDbContextFactory<ServerDbContext>(options =>
 
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ServerDbContext>();
+
+string? igdbClientId = Environment.GetEnvironmentVariable("IGDB_CLIENT_ID");
+string? igdbClientSecret = Environment.GetEnvironmentVariable("IGDB_CLIENT_SECRET");
+
+if (igdbClientId == null || igdbClientSecret == null)
+{
+    throw new Exception("Client id or client secret not set in environment variables");
+}
+
+builder.Services.AddScoped<IgdbManager>(service => new IgdbManager(igdbClientId, igdbClientSecret));
+builder.Services.AddScoped<GameManager>();
 
 builder.Services.AddHostedService<GameDiscoveryService>();
 
