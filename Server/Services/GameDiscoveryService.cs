@@ -44,6 +44,8 @@ public class GameDiscoveryService : BackgroundService
     {
         List<Game> foundGames = GetGamesInDir(GAMES_DIR);
 
+        if (foundGames.Count == 0) return;
+        
         foreach (Game foundGame in foundGames)
         {
             string gamePath = GAMES_DIR + '/' + foundGame.Name;
@@ -57,6 +59,8 @@ public class GameDiscoveryService : BackgroundService
             await AddGameToDbAsync(gameWithMetadata, gameFiles, artworks);
             
         }
+        
+        Console.WriteLine("Finished");
 
     }
 
@@ -67,6 +71,9 @@ public class GameDiscoveryService : BackgroundService
         foreach (string subDir in Directory.GetDirectories(dir))
         {
             string gameName = subDir.Substring(subDir.IndexOf('/') + 1);
+
+            if (GameAlreadyAdded(gameName)) continue;
+            
             foundGames.Add(new Game()
             {
                 Name = gameName
@@ -76,13 +83,31 @@ public class GameDiscoveryService : BackgroundService
         return foundGames;
     }
 
+    private bool GameAlreadyAdded(string gameName)
+    {
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            ServerDbContext dbContext = scope.ServiceProvider.GetRequiredService<ServerDbContext>();
+
+            Game? foundGame = dbContext.Games.Where(g => g.Name == gameName)
+                                .ToList()
+                                .FirstOrDefault(defaultValue: null);
+
+            return foundGame != null;
+        }
+    }
+
     private List<GameFile> GetGameFiles(string dir)
     {
         List<GameFile> foundGameFiles = new List<GameFile>();
 
         foreach (string fileInDir in Directory.GetFiles(dir))
         {
-            // Taken from https://www.tutorialspoint.com/how-do-you-get-the-file-size-in-chash
+            /*
+             TODO: This gets the actual size (amount of data in file) rather than disk usage (amount of data + headers,
+             block endings etc. Might need to get disk usage instead if transferring over network doesn't work later
+             Taken from https://www.tutorialspoint.com/how-do-you-get-the-file-size-in-chash
+             */
             long fileSizeBytes = new FileInfo(fileInDir).Length;
             string filePathFromGameRoot = fileInDir.Substring(fileInDir.IndexOf('/') + 1);
             
