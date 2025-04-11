@@ -10,7 +10,7 @@ public class GameDiscoveryService : BackgroundService
     
     private const string GAMES_DIR = "Games";
 
-    private const int TIMER_INTERVAL_MS = 1 * 1000;
+    private const int TIMER_INTERVAL_MS = 100 * 1000;
 
     private const int TIMER_START_DELAY_MS = 0;
     
@@ -42,8 +42,12 @@ public class GameDiscoveryService : BackgroundService
             
             List<GameFile> gameFiles = GetGameFiles(gamePath);
             Game gameWithMetadata = await ApplyGameMetadata(foundGame);
-            
-            Console.WriteLine("Hit");
+            List<Artwork>? artworks = await GetArtworksAsync(gameWithMetadata.IgdbId.Value);
+
+            foreach (GameFile gameFile in gameFiles)
+            {
+                Console.WriteLine(gameFile.Directory + " " + gameFile.FileSizeBytes);
+            }
             
         }
 
@@ -71,16 +75,26 @@ public class GameDiscoveryService : BackgroundService
 
         foreach (string fileInDir in Directory.GetFiles(dir))
         {
+            // Taken from https://www.tutorialspoint.com/how-do-you-get-the-file-size-in-chash
+            long fileSizeBytes = new FileInfo(fileInDir).Length;
             string filePathFromGameRoot = fileInDir.Substring(fileInDir.IndexOf('/') + 1);
             
             foundGameFiles.Add(new GameFile()
             {
-                Directory = filePathFromGameRoot
+                Directory = filePathFromGameRoot,
+                FileSizeBytes = fileSizeBytes
             });
         }
 
         return foundGameFiles;
     }
+
+    /*
+    private int GetTotalGameSize(List<GameFile> gameFiles)
+    {
+        
+    }
+    */
 
     private async Task<Game?> ApplyGameMetadata(Game game)
     {
