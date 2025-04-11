@@ -33,7 +33,7 @@ namespace Server
 
         }
 
-        public async Task<string> GetGameSummaryAsync(string gameIgdbId)
+        public async Task<string> GetGameSummaryAsync(long gameIgdbId)
         {
             IgdbGame[] foundGames = await igdbClient.QueryAsync<IgdbGame>(IGDBClient.Endpoints.Games, 
                 query: $"where id = {gameIgdbId}; fields summary;");
@@ -43,7 +43,7 @@ namespace Server
             return foundGame.Summary;
         }
 
-        public async Task<string?> GetCoverUrlAsync(string gameIgdbId)
+        public async Task<string?> GetCoverUrlAsync(long gameIgdbId)
         {
             string? coverId = await GetCoverIdAsync(gameIgdbId);
 
@@ -57,7 +57,7 @@ namespace Server
             return coverUrl;
         }
 
-        private async Task<string?> GetCoverIdAsync(string gameIgdbId)
+        private async Task<string?> GetCoverIdAsync(long gameIgdbId)
         {
             Cover[] foundCovers = await igdbClient.QueryAsync<Cover>(IGDBClient.Endpoints.Covers, 
                 query: $"where game = {gameIgdbId}; fields image_id;");
