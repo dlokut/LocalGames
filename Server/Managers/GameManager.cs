@@ -9,12 +9,17 @@ public class GameManager
 
     private readonly IgdbManager igdbManager;
     
-    private const string GAMES_DIR = "Games";
-
+    public const string GAMES_DIR = "Games";
+    
     public GameManager(IDbContextFactory<ServerDbContext> dbContextFactory, IgdbManager igdbManager)
     {
         this.dbContextFactory = dbContextFactory;
         this.igdbManager = igdbManager;
+    }
+
+    public string GetGamesDir()
+    {
+        return GAMES_DIR;
     }
     
     // Using void instead of Task here as this is an event method
