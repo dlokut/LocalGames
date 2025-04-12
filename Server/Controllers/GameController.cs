@@ -24,6 +24,13 @@ namespace Server.Controllers
             _dbContext = dbContext;
             _gameManager = gameManager;
         }
+
+        [HttpGet]
+        [Route("v1/GetAllGames")]
+        public async Task<List<Game>> GetAllGamesAsync()
+        {
+            return _dbContext.Games.ToList();
+        }
         
         # region Download/Upload
 
