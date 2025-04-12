@@ -22,8 +22,7 @@ public class GameManager
         return GAMES_DIR;
     }
     
-    // Using void instead of Task here as this is an event method
-    public async void ScanGamesDirectory(Object? stateInfo)
+    public async Task ScanGamesDirectoryAsync()
     {
         List<Game> foundGames = await GetGamesInDir(GAMES_DIR);
 
@@ -42,9 +41,13 @@ public class GameManager
             await AddGameToDbAsync(gameWithMetadata, gameFiles, artworks);
             
         }
-        
-        Console.WriteLine("Finished");
+    }
 
+    // Using void instead of Task here as this is an event method
+    // stateInfo is required for timer, but not actually used
+    public async void ScanGamesDirectoryEvent(object? stateInfo)
+    {
+        await ScanGamesDirectoryAsync();
     }
 
     private async Task<List<Game>> GetGamesInDir(string dir)

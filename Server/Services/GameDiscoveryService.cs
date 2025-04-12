@@ -25,7 +25,7 @@ public class GameDiscoveryService : BackgroundService
         {
             GameManager gameManager = scope.ServiceProvider.GetRequiredService<GameManager>();
             
-            serviceTimer = new Timer(gameManager.ScanGamesDirectory, null,
+            serviceTimer = new Timer(gameManager.ScanGamesDirectoryEvent, null,
                 TIMER_START_DELAY_MS, TIMER_INTERVAL_MS);
         }
     }
