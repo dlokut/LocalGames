@@ -40,6 +40,8 @@ namespace Server.Controllers
             }
             
             await UploadMultipartGameFilesAsync(Request.Body, Request.ContentType, gameName);
+
+            await _gameManager.ScanGamesDirectoryAsync();
             
             return Ok();
         }
