@@ -133,7 +133,8 @@ namespace Server.Controllers
                 return BadRequest("Must be of content type multipart/form-data");
             }
             
-            await UploadMultipartGameFilesAsync(Request.Body, Request.ContentType, gameName);
+            string gamePath = _gameManager.GetGamesDir() + "/" + gameName;
+            await UploadMultipartFilesAsync(Request.Body, Request.ContentType, gamePath);
 
             await _gameManager.ScanGamesDirectoryAsync();
             
@@ -151,17 +152,15 @@ namespace Server.Controllers
         }
 
 
-        private async Task UploadMultipartGameFilesAsync(Stream requestBodyStream, string contentTypeHeader,
-            string gameName)
+        private async Task UploadMultipartFilesAsync(Stream requestBodyStream, string contentTypeHeader,
+            string rootPath)
         {
             string boundary = GetMultipartBoundary(MediaTypeHeaderValue.Parse(contentTypeHeader));
 
-            string gamePath = _gameManager.GetGamesDir() + "/" + gameName;
-            Directory.CreateDirectory(gamePath);
+            Directory.CreateDirectory(rootPath);
             
             MultipartReader multipartReader = new MultipartReader(boundary, requestBodyStream);
-
-            Dictionary<string, string>? gameFileDirs = await GetGameFileDirsAsync(multipartReader);
+            Dictionary<string, string>? fileDirs = await GetMultipartFileDirsAsync(multipartReader);
             
             MultipartSection? section = await multipartReader.ReadNextSectionAsync();
             while (section != null)
@@ -169,9 +168,9 @@ namespace Server.Controllers
                 FileMultipartSection? fileSection = section.AsFileSection();
                 if (fileSection == null) continue;
                 
-                CreateDirectoriesForGameFile(gameFileDirs[fileSection.Name], gameName);
+                CreateDirectoriesForFile(fileDirs[fileSection.Name], rootPath);
 
-                string filePath = gamePath + "/" + gameFileDirs[fileSection.Name];
+                string filePath = rootPath + "/" + fileDirs[fileSection.Name];
                 using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None,
                            1024))
                 {
@@ -190,7 +189,7 @@ namespace Server.Controllers
         }
 
         // Will return null if there was en error reading sections
-        private async Task<Dictionary<string, string>?> GetGameFileDirsAsync(MultipartReader multipartReader)
+        private async Task<Dictionary<string, string>?> GetMultipartFileDirsAsync(MultipartReader multipartReader)
         {
             MultipartSection? section = await multipartReader.ReadNextSectionAsync();
             FormMultipartSection? formMultipartSection = section.AsFormDataSection();
@@ -218,14 +217,13 @@ namespace Server.Controllers
             return gameFileDirs;
         }
 
-        private void CreateDirectoriesForGameFile(string gameFilePath, string gameName)
+        private void CreateDirectoriesForFile(string gameFilePath, string rootPath)
         {
             string previousDirs = "";
             while (gameFilePath.Contains('/'))
             {
                 string dirName = gameFilePath.Substring(0, gameFilePath.IndexOf('/'));
-                Directory.CreateDirectory(_gameManager.GetGamesDir() + "/" + gameName + '/' + 
-                                          previousDirs + dirName);
+                Directory.CreateDirectory(rootPath + '/' + previousDirs + dirName);
 
                 previousDirs += dirName + "/";
                 
