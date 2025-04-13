@@ -31,6 +31,32 @@ namespace Server.Controllers
         {
             return _dbContext.Games.ToList();
         }
+
+        [HttpGet]
+        [Route("v1/GetGameFiles")]
+        public async Task<IActionResult> GetGameFiles(Guid gameId)
+        {
+            if (!await GameIdInDbAsync(gameId))
+            {
+                return BadRequest("Unkown game id");
+            }
+            
+            // Removing gameid and game properties as this seems to cause issue with the framework json serialiser
+            List<GameFile> gameFiles = _dbContext.GameFiles.Where(gf => gf.GameId == gameId).ToList();
+            foreach (GameFile gameFile in gameFiles)
+            {
+                gameFile.GameId = Guid.Empty;
+                gameFile.Game = null;
+            }
+            return Ok(gameFiles);
+        }
+
+        private async Task<bool> GameIdInDbAsync(Guid gameId)
+        {
+            Game? foundGame = await _dbContext.Games.FindAsync(gameId);
+
+            return foundGame != null;
+        }
         
         # region Download/Upload
 
