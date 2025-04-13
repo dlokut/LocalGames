@@ -11,6 +11,7 @@ namespace Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    
     public class GameController : Controller
     {
         private readonly ServerDbContext _dbContext;
@@ -99,6 +100,12 @@ namespace Server.Controllers
         
         # region Download/Upload
 
+        /*
+         * Game data is uploaded as multipart form request. The first form item must have the number of files sent,
+         * followed by the directories of the files as text values, then followed by the files themselves. Files and
+         * directories must be keyed by the file name. The item count form item key doesn't matter.
+         */
+        
         [HttpPost]
         [Route("v1/PostUploadGame")]
         // Disabled so files don't get loaded into memory/disk
@@ -128,7 +135,6 @@ namespace Server.Controllers
             return true;
         }
 
-        // These are disabled to not load large files into memory
 
         private async Task UploadMultipartGameFilesAsync(Stream requestBodyStream, string contentTypeHeader,
             string gameName)
@@ -139,17 +145,18 @@ namespace Server.Controllers
             Directory.CreateDirectory(gamePath);
             
             MultipartReader multipartReader = new MultipartReader(boundary, requestBodyStream);
+
+            Dictionary<string, string>? gameFileDirs = await GetGameFileDirsAsync(multipartReader);
+            
             MultipartSection? section = await multipartReader.ReadNextSectionAsync();
-                
             while (section != null)
             {
                 FileMultipartSection? fileSection = section.AsFileSection();
-
                 if (fileSection == null) continue;
-
                 
-                string filePath = gamePath + "/" + fileSection.FileName;
+                CreateDirectoriesForGameFile(gameFileDirs[fileSection.Name], gameName);
 
+                string filePath = gamePath + "/" + gameFileDirs[fileSection.Name];
                 using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None,
                            1024))
                 {
@@ -165,6 +172,51 @@ namespace Server.Controllers
             string boundary = HeaderUtilities.RemoveQuotes(header.Boundary).Value;
 
             return boundary;
+        }
+
+        // Will return null if there was en error reading sections
+        private async Task<Dictionary<string, string>?> GetGameFileDirsAsync(MultipartReader multipartReader)
+        {
+            MultipartSection? section = await multipartReader.ReadNextSectionAsync();
+            FormMultipartSection? formMultipartSection = section.AsFormDataSection();
+
+            if (formMultipartSection == null)
+            {
+                return null;
+            }
+            
+            int itemCount = int.Parse(await formMultipartSection.GetValueAsync());
+
+            var gameFileDirs = new Dictionary<string, string>();
+
+            for (int i = 0; i < itemCount; i++)
+            {
+                section = await multipartReader.ReadNextSectionAsync();
+                formMultipartSection = section.AsFormDataSection();
+                
+                string sectionKey = formMultipartSection.Name;
+                string sectionValue = await formMultipartSection.GetValueAsync();
+
+                gameFileDirs[sectionKey] = sectionValue;
+            }
+            
+            return gameFileDirs;
+        }
+
+        private void CreateDirectoriesForGameFile(string gameFilePath, string gameName)
+        {
+            string previousDirs = "";
+            while (gameFilePath.Contains('/'))
+            {
+                string dirName = gameFilePath.Substring(0, gameFilePath.IndexOf('/'));
+                Directory.CreateDirectory(_gameManager.GetGamesDir() + "/" + gameName + '/' + 
+                                          previousDirs + dirName);
+
+                previousDirs += dirName + "/";
+                
+                gameFilePath = gameFilePath.Substring(gameFilePath.IndexOf('/') + 1);
+            }
+
         }
         
         # endregion
