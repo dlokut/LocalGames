@@ -89,6 +89,21 @@ namespace Server.Controllers
             
             Directory.Delete(gameDir);
         }
+
+        [HttpPost]
+        [Route("v1/PostIgdbId")]
+        public async Task<IActionResult> PostIgdbIdAsync(Guid gameId, long newIgdbId)
+        {
+            if (!await GameIdInDbAsync(gameId))
+            {
+                return BadRequest("Unknown game id");
+            }
+
+            bool updateSuccessful = await _gameManager.UpdateGameMetadataAsync(gameId, newIgdbId);
+
+            if (updateSuccessful) return Ok();
+            else return BadRequest("Given igdb id not found");
+        }
         
 
         private async Task<bool> GameIdInDbAsync(Guid gameId)

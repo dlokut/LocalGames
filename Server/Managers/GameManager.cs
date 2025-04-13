@@ -21,6 +21,49 @@ public class GameManager
     {
         return GAMES_DIR;
     }
+
+    public async Task<bool> UpdateGameMetadataAsync(Guid gameId, long igdbId)
+    {
+        using (ServerDbContext dbContext = await dbContextFactory.CreateDbContextAsync())
+        {
+            Game gameToUpdate = await dbContext.Games.FindAsync(gameId);
+            Game? gameWithMetadata = await ApplyGameMetadataAsync(gameToUpdate, igdbId);
+
+            bool IGDB_ID_NOT_FOUND = gameWithMetadata == null;
+            if (IGDB_ID_NOT_FOUND) return false;
+            
+            dbContext.Update(gameWithMetadata);
+
+            await DeletePreviousArtworkAsync(gameId);
+            List<Artwork>? newArtworks = await GetArtworksAsync(igdbId);
+            if (newArtworks != null)
+            {
+                foreach (Artwork artwork in newArtworks)
+                {
+                    artwork.GameId = gameId;
+                }
+                
+                await dbContext.Artworks.AddRangeAsync(newArtworks);
+            }
+
+            await dbContext.SaveChangesAsync();
+            return true;
+        }
+
+    }
+
+    private async Task DeletePreviousArtworkAsync(Guid gameId)
+    {
+        using (ServerDbContext dbContext = await dbContextFactory.CreateDbContextAsync())
+        {
+            List<Artwork> artworks = dbContext.Artworks.Where(a => a.GameId == gameId).ToList();
+            
+            if (artworks.Count == 0) return;
+            
+            dbContext.Artworks.RemoveRange(artworks);
+            await dbContext.SaveChangesAsync();
+        }
+    }
     
     public async Task ScanGamesDirectoryAsync()
     {
@@ -33,7 +76,7 @@ public class GameManager
             string gamePath = GAMES_DIR + '/' + foundGame.Name;
             
             List<GameFile> gameFiles = GetGameFiles(gamePath);
-            Game gameWithMetadata = await ApplyGameMetadata(foundGame);
+            Game gameWithMetadata = await ApplyGameMetadataAsync(foundGame);
             gameWithMetadata.FileSize = GetTotalGameSize(gameFiles);
             
             List<Artwork>? artworks = await GetArtworksAsync(gameWithMetadata.IgdbId.Value);
@@ -110,9 +153,9 @@ public class GameManager
         return gameFiles.Select(gf => gf.FileSizeBytes).Sum();
     }
 
-    private async Task<Game?> ApplyGameMetadata(Game game)
+    private async Task<Game?> ApplyGameMetadataAsync(Game game, long? gameIgdbId = null)
     {
-        long? gameIgdbId = await igdbManager.GetGameIdAsync(game.Name);
+        gameIgdbId ??= await igdbManager.GetGameIdAsync(game.Name);
 
         if (!gameIgdbId.HasValue)
         {
