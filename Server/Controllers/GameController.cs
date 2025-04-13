@@ -34,11 +34,11 @@ namespace Server.Controllers
 
         [HttpGet]
         [Route("v1/GetGameFiles")]
-        public async Task<IActionResult> GetGameFiles(Guid gameId)
+        public async Task<IActionResult> GetGameFilesAsync(Guid gameId)
         {
             if (!await GameIdInDbAsync(gameId))
             {
-                return BadRequest("Unkown game id");
+                return BadRequest("Unknown game id");
             }
             
             // Removing gameid and game properties as this seems to cause issue with the framework json serialiser
@@ -50,6 +50,45 @@ namespace Server.Controllers
             }
             return Ok(gameFiles);
         }
+
+        [HttpPost]
+        [Route("v1/PostDeleteGame")]
+        public async Task<IActionResult> PostDeleteGameAsync(Guid gameId)
+        {
+            Game? gameToDelete = await _dbContext.Games.FindAsync(gameId);
+
+            if (gameToDelete == null)
+            {
+                return BadRequest("Unknown game id");
+            }
+            
+            DeleteGameFiles(_gameManager.GetGamesDir() + '/' + gameToDelete.Name);
+
+            _dbContext.Games.Remove(gameToDelete);
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        private void DeleteGameFiles(string gameDir)
+        {
+            const string ALL_FILES_DIRECTORIES = "*";
+            foreach (string filePath in Directory.GetFiles(gameDir, ALL_FILES_DIRECTORIES,
+                         SearchOption.AllDirectories))
+            {
+                System.IO.File.Delete(filePath);
+            }
+
+            foreach (string directory in Directory.GetDirectories(gameDir, ALL_FILES_DIRECTORIES,
+                         SearchOption.AllDirectories))
+            {
+                Directory.Delete(directory);
+            }
+            
+            Directory.Delete(gameDir);
+        }
+        
 
         private async Task<bool> GameIdInDbAsync(Guid gameId)
         {
