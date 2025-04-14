@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Server.Database
 {
     [PrimaryKey(nameof(UserId), nameof(GameId), nameof(Directory))]
-    public class GameSaves
+    public class GameSave
     {
         [ForeignKey(nameof(User))]
         public string UserId { get; set; }

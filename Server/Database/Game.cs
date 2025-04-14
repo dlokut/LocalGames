@@ -19,7 +19,7 @@ namespace Server.Database
 
         public List<Playtime> Playtimes { get; set; }
 
-        public List<GameSaves> Saves { get; set; }
+        public List<GameSave> Saves { get; set; }
 
         public List<Artwork> Artworks { get; set; }
         

@@ -74,12 +74,12 @@ public class GameManager
     
     public async Task ScanGameSavesDirectoryAsync(Guid gameId, string gameName, string userId)
     {
-        List<GameSaves> gameSaves = new List<GameSaves>();
+        List<GameSave> gameSaves = new List<GameSave>();
 
         string gameSavePath = SAVE_FILES_DIR + '/' + gameName;
         gameSaves = GetGameSavesInDir(gameSaves, gameSavePath);
 
-        foreach (GameSaves gameSave in gameSaves)
+        foreach (GameSave gameSave in gameSaves)
         {
             gameSave.GameId = gameId;
             gameSave.UserId = userId;
@@ -92,12 +92,12 @@ public class GameManager
         }
     }
 
-    private List<GameSaves> GetGameSavesInDir(List<GameSaves> gameSaves, string dir)
+    private List<GameSave> GetGameSavesInDir(List<GameSave> gameSaves, string dir)
     {
         foreach (string filePath in Directory.GetFiles(dir))
         {
             string filePathFromGameRoot = filePath.Substring(filePath.IndexOf('/') + 1);
-            gameSaves.Add(new GameSaves()
+            gameSaves.Add(new GameSave()
             {
                 Directory = filePathFromGameRoot
             });
