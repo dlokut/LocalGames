@@ -174,6 +174,26 @@ namespace Server.Controllers
 
             else return Ok(foundPlaytime.PlaytimeMins);
         }
+
+        [HttpGet]
+        [Route("v1/GetGameMetadata")]
+        public async Task<IActionResult> GetGameMetadataAsync(Guid gameId)
+        {
+            Game? foundGame = await _dbContext.Games.FindAsync(gameId);
+
+            if (foundGame == null)
+            {
+                return BadRequest("Game id not found");
+            }
+
+            // Removing references to other objects to avoid issues with json serializer
+            foundGame.GameFiles = null;
+            foundGame.Artworks = null;
+            foundGame.Saves = null;
+            foundGame.GameFiles = null;
+
+            return Ok(foundGame);
+        }
         
 
         private async Task<bool> GameIdInDbAsync(Guid gameId)
