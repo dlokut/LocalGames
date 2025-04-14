@@ -147,6 +147,21 @@ namespace Server.Controllers
         }
 
         [HttpGet]
+        [Route("v1/GetGameFilesDirs")]
+        public async Task<IActionResult> GetGameFilesDirsAsync(Guid gameId)
+        {
+            if (!await GameIdInDbAsync(gameId))
+            {
+                return BadRequest("Game id not found");
+            }
+
+            List<GameFile> gameFiles = _dbContext.GameFiles.Where(gf => gf.GameId == gameId).ToList();
+            List<string> gameFileDirs = gameFiles.Select(gf => gf.Directory).ToList();
+
+            return Ok(gameFileDirs);
+        }
+        
+        [HttpGet]
         [Route("v1/GetGameFile")]
         public async Task<IActionResult> GetDownloadGameAsync(Guid gameId, string fileDir)
         {
