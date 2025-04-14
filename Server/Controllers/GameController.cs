@@ -39,8 +39,8 @@ namespace Server.Controllers
         }
 
         [HttpGet]
-        [Route("v1/GetGameFiles")]
-        public async Task<IActionResult> GetGameFilesAsync(Guid gameId)
+        [Route("v1/GetGameFilesInfo")]
+        public async Task<IActionResult> GetGameFilesInfoAsync(Guid gameId)
         {
             if (!await GameIdInDbAsync(gameId))
             {
@@ -194,6 +194,25 @@ namespace Server.Controllers
 
             return Ok(foundGame);
         }
+
+        [HttpPost]
+        [Route("v1/PostGameMetadata")]
+        public async Task<IActionResult> PostGameMetadataAsync(Guid gameId, string? summary, string? coverImageUrl)
+        {
+            Game? foundGame = await _dbContext.Games.FindAsync(gameId);
+            if (foundGame == null)
+            {
+                return BadRequest("Game id not found");
+            }
+
+            if (summary != null) foundGame.Summary = summary;
+            if (coverImageUrl != null) foundGame.CoverUrl = coverImageUrl;
+
+            _dbContext.Games.Update(foundGame);
+            await _dbContext.SaveChangesAsync();
+            
+            return Ok();
+        }
         
 
         private async Task<bool> GameIdInDbAsync(Guid gameId)
@@ -204,6 +223,9 @@ namespace Server.Controllers
         }
         
         # region Download/Upload
+        
+        //TODO: Game files and saves have mime type when downloaded, but unsure if this is added by browser.
+        //Might need to change if not working on the client app
 
         /*
          * Game data is uploaded as multipart form request. The first form item must have the number of files sent,
@@ -232,22 +254,7 @@ namespace Server.Controllers
         }
 
         [HttpGet]
-        [Route("v1/GetGameFilesDirs")]
-        public async Task<IActionResult> GetGameFilesDirsAsync(Guid gameId)
-        {
-            if (!await GameIdInDbAsync(gameId))
-            {
-                return BadRequest("Game id not found");
-            }
-
-            List<GameFile> gameFiles = _dbContext.GameFiles.Where(gf => gf.GameId == gameId).ToList();
-            List<string> gameFileDirs = gameFiles.Select(gf => gf.Directory).ToList();
-
-            return Ok(gameFileDirs);
-        }
-        
-        [HttpGet]
-        [Route("v1/GetGameFile")]
+        [Route("v1/GetDownloadGameFile")]
         public async Task<IActionResult> GetDownloadGameFileAsync(Guid gameId, string fileDir)
         {
             GameFile? foundGameFile = await _dbContext.GameFiles.FindAsync(gameId, fileDir);
