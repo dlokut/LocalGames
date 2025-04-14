@@ -213,6 +213,27 @@ namespace Server.Controllers
             
             return Ok();
         }
+
+        [HttpGet]
+        [Route("v1/GetGameArtworkUrls")]
+        public async Task<IActionResult> GetGameArtworkUrlsAsync(Guid gameId)
+        {
+            if (!await GameIdInDbAsync(gameId))
+            {
+                return BadRequest("Game id not found");
+            }
+
+            List<Artwork> artworks = _dbContext.Artworks.Where(a => a.GameId == gameId).ToList();
+
+            if (artworks.Count == 0)
+            {
+                return Ok(artworks);
+            }
+
+            List<string> artworkUrls = artworks.Select(a => a.ArtworkUrl).ToList();
+
+            return Ok(artworkUrls);
+        }
         
 
         private async Task<bool> GameIdInDbAsync(Guid gameId)
