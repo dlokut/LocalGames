@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
@@ -16,14 +17,17 @@ namespace Server.Controllers
     {
         private readonly ServerDbContext _dbContext;
 
+        private readonly UserManager<User> _userManager;
+
         private readonly GameManager _gameManager;
 
         private const long NO_SIZE_LIMIT = long.MaxValue;
 
-        public GameController(ServerDbContext dbContext, GameManager gameManager)
+        public GameController(ServerDbContext dbContext, GameManager gameManager, UserManager<User> userManager)
         {
             _dbContext = dbContext;
             _gameManager = gameManager;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -141,6 +145,40 @@ namespace Server.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        [Route("v1/PostUploadSaveFiles")]
+        [DisableFormValueModelBinding]
+        [RequestSizeLimit(NO_SIZE_LIMIT)]
+        public async Task<IActionResult> PostUploadSaveFilesAsync([FromQuery] Guid gameId)
+        {
+            if (!IsMultipartFormData(HttpContext.Request))
+            {
+                return BadRequest("Must be of content type multipart/form-data");
+            }
+
+            User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return BadRequest("Must be signed in to upload game files");
+            }
+            
+
+            Game? foundGame = await _dbContext.Games.FindAsync(gameId);
+            if (foundGame == null)
+            {
+                return BadRequest("Given game id not found");
+            }
+
+            string saveFilesPath = _gameManager.GetSaveFiles() + '/' + foundGame.Name;
+
+            await UploadMultipartFilesAsync(Request.Body, Request.ContentType, saveFilesPath);
+
+            await _gameManager.ScanGameSavesDirectoryAsync(gameId, foundGame.Name, currentUser.Id);
+
+            return Ok();
+
+        }
+        
         private bool IsMultipartFormData(HttpRequest request)
         {
             if (!request.HasFormContentType) return false;

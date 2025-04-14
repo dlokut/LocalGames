@@ -11,6 +11,8 @@ public class GameManager
     
     public const string GAMES_DIR = "Games";
     
+    public const string SAVE_FILES_DIR = "SaveFiles";
+    
     public GameManager(IDbContextFactory<ServerDbContext> dbContextFactory, IgdbManager igdbManager)
     {
         this.dbContextFactory = dbContextFactory;
@@ -20,6 +22,11 @@ public class GameManager
     public string GetGamesDir()
     {
         return GAMES_DIR;
+    }
+
+    public string GetSaveFiles()
+    {
+        return SAVE_FILES_DIR;
     }
 
     public async Task<bool> UpdateGameMetadataAsync(Guid gameId, long igdbId)
@@ -63,6 +70,45 @@ public class GameManager
             dbContext.Artworks.RemoveRange(artworks);
             await dbContext.SaveChangesAsync();
         }
+    }
+    
+    public async Task ScanGameSavesDirectoryAsync(Guid gameId, string gameName, string userId)
+    {
+        List<GameSaves> gameSaves = new List<GameSaves>();
+
+        string gameSavePath = SAVE_FILES_DIR + '/' + gameName;
+        gameSaves = GetGameSavesInDir(gameSaves, gameSavePath);
+
+        foreach (GameSaves gameSave in gameSaves)
+        {
+            gameSave.GameId = gameId;
+            gameSave.UserId = userId;
+        }
+        
+        using (ServerDbContext dbContext = await dbContextFactory.CreateDbContextAsync())
+        {
+            await dbContext.GameSaves.AddRangeAsync(gameSaves);
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
+    private List<GameSaves> GetGameSavesInDir(List<GameSaves> gameSaves, string dir)
+    {
+        foreach (string filePath in Directory.GetFiles(dir))
+        {
+            string filePathFromGameRoot = filePath.Substring(filePath.IndexOf('/') + 1);
+            gameSaves.Add(new GameSaves()
+            {
+                Directory = filePathFromGameRoot
+            });
+        }
+
+        foreach (string subDir in Directory.GetDirectories(dir))
+        {
+            gameSaves = GetGameSavesInDir(gameSaves, subDir);
+        }
+
+        return gameSaves;
     }
     
     public async Task ScanGamesDirectoryAsync()
