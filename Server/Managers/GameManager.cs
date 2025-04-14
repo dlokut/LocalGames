@@ -175,16 +175,20 @@ public class GameManager
     private List<GameFile> GetGameFiles(string dir)
     {
         List<GameFile> foundGameFiles = new List<GameFile>();
-
-        foreach (string fileInDir in Directory.GetFiles(dir))
+        
+        List<string> foundGameFilePaths = new List<string>();
+        foundGameFilePaths = GetFilePathsInDirAndSubdirs(foundGameFilePaths, dir);
+        foreach (string filePathFromGameRoot in foundGameFilePaths)
         {
             /*
              TODO: This gets the actual size (amount of data in file) rather than disk usage (amount of data + headers,
              block endings etc. Might need to get disk usage instead if transferring over network doesn't work later
              Taken from https://www.tutorialspoint.com/how-do-you-get-the-file-size-in-chash
              */
-            long fileSizeBytes = new FileInfo(fileInDir).Length;
-            string filePathFromGameRoot = fileInDir.Substring(fileInDir.IndexOf('/') + 1);
+            
+            // Required to add games dir for file info method
+            string filePathFromGamesDir = GAMES_DIR + '/' + filePathFromGameRoot;
+            long fileSizeBytes = new FileInfo(filePathFromGamesDir).Length;
             
             foundGameFiles.Add(new GameFile()
             {
