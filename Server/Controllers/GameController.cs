@@ -234,6 +234,27 @@ namespace Server.Controllers
 
             return Ok(artworkUrls);
         }
+
+        [HttpPost]
+        [Route("v1/PostGameArtworkUrl")]
+        public async Task<IActionResult> PostGameArtworkUrlAsync(Guid gameId, string artworkUrl)
+        {
+            if (!await GameIdInDbAsync(gameId))
+            {
+                return BadRequest("Game id not found");
+            }
+
+            Artwork newArtwork = new Artwork()
+            {
+                GameId = gameId,
+                ArtworkUrl = artworkUrl
+            };
+
+            await _dbContext.Artworks.AddAsync(newArtwork);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
         
 
         private async Task<bool> GameIdInDbAsync(Guid gameId)
