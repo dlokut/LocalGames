@@ -77,14 +77,19 @@ public class GameManager
         List<GameSave> gameSaves = new List<GameSave>();
 
         string gameSavePath = SAVE_FILES_DIR + '/' + gameName;
-        gameSaves = GetGameSavesInDir(gameSaves, gameSavePath);
+        List<string> gameSavePaths = new List<string>();
+        gameSavePaths = GetFilePathsInDirAndSubdirs(gameSavePaths, gameSavePath);
 
-        foreach (GameSave gameSave in gameSaves)
+        foreach (string path in gameSavePaths)
         {
-            gameSave.GameId = gameId;
-            gameSave.UserId = userId;
+            gameSaves.Add(new GameSave()
+            {
+                GameId = gameId,
+                UserId = userId,
+                Directory = path
+            });
         }
-        
+
         using (ServerDbContext dbContext = await dbContextFactory.CreateDbContextAsync())
         {
             await dbContext.GameSaves.AddRangeAsync(gameSaves);
@@ -92,23 +97,20 @@ public class GameManager
         }
     }
 
-    private List<GameSave> GetGameSavesInDir(List<GameSave> gameSaves, string dir)
+    private List<string> GetFilePathsInDirAndSubdirs(List<string> filePaths, string dir)
     {
         foreach (string filePath in Directory.GetFiles(dir))
         {
             string filePathFromGameRoot = filePath.Substring(filePath.IndexOf('/') + 1);
-            gameSaves.Add(new GameSave()
-            {
-                Directory = filePathFromGameRoot
-            });
+            filePaths.Add(filePathFromGameRoot);
         }
 
         foreach (string subDir in Directory.GetDirectories(dir))
         {
-            gameSaves = GetGameSavesInDir(gameSaves, subDir);
+            filePaths = GetFilePathsInDirAndSubdirs(filePaths, subDir);
         }
 
-        return gameSaves;
+        return filePaths;
     }
     
     public async Task ScanGamesDirectoryAsync()
