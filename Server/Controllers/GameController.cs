@@ -109,6 +109,46 @@ namespace Server.Controllers
             if (updateSuccessful) return Ok();
             else return BadRequest("Given igdb id not found");
         }
+
+        [HttpPost]
+        [Route("v1/PostPlaytime")]
+        public async Task<IActionResult> PostPlaytimeAsync(Guid gameId, int playtimeMins)
+        {
+            User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return BadRequest("Must be signed in to upload game files");
+            }
+            
+            if (!await GameIdInDbAsync(gameId))
+            {
+                return BadRequest("Unknown game id");
+            }
+
+            Playtime? foundPlaytime = await _dbContext.Playtimes.FindAsync(currentUser.Id, gameId);
+
+            if (foundPlaytime == null)
+            {
+                Playtime newPlaytime = new Playtime()
+                {
+                    UserId = currentUser.Id,
+                    GameId = gameId,
+                    PlaytimeMins = playtimeMins
+                };
+
+                await _dbContext.Playtimes.AddAsync(newPlaytime);
+            }
+
+            else
+            {
+                foundPlaytime.PlaytimeMins = playtimeMins;
+                _dbContext.Playtimes.Update(foundPlaytime);
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
         
 
         private async Task<bool> GameIdInDbAsync(Guid gameId)
@@ -163,7 +203,7 @@ namespace Server.Controllers
         
         [HttpGet]
         [Route("v1/GetGameFile")]
-        public async Task<IActionResult> GetDownloadGameAsync(Guid gameId, string fileDir)
+        public async Task<IActionResult> GetDownloadGameFileAsync(Guid gameId, string fileDir)
         {
             GameFile? foundGameFile = await _dbContext.GameFiles.FindAsync(gameId, fileDir);
 
@@ -178,6 +218,12 @@ namespace Server.Controllers
                 1024));
         }
 
+        /*
+         * Game saves are uploaded as multipart form request. The first form item must have the number of files sent,
+         * followed by the directories of the files as text values, then followed by the files themselves. Files and
+         * directories must be keyed by the file name. The item count form item key doesn't matter.
+         */
+        
         [HttpPost]
         [Route("v1/PostUploadSaveFiles")]
         [DisableFormValueModelBinding]
