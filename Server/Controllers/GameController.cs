@@ -117,7 +117,7 @@ namespace Server.Controllers
             User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null)
             {
-                return BadRequest("Must be signed in to upload game files");
+                return BadRequest("Must be signed in to upload playtimes");
             }
             
             if (!await GameIdInDbAsync(gameId))
@@ -148,6 +148,31 @@ namespace Server.Controllers
             await _dbContext.SaveChangesAsync();
 
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("v1/GetPlaytime")]
+        public async Task<IActionResult> GetPlaytimeAsync(Guid gameId)
+        {
+            User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return BadRequest("Must be signed in to get playtime");
+            }
+            
+            if (!await GameIdInDbAsync(gameId))
+            {
+                return BadRequest("Unknown game id");
+            }
+
+            Playtime? foundPlaytime = await _dbContext.Playtimes.FindAsync(currentUser.Id, gameId);
+            if (foundPlaytime == null)
+            {
+                const int NO_PLAYTIME_RECORDED = 0;
+                return Ok(NO_PLAYTIME_RECORDED);
+            }
+
+            else return Ok(foundPlaytime.PlaytimeMins);
         }
         
 
