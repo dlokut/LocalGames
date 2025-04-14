@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.WebUtilities;
@@ -143,6 +144,23 @@ namespace Server.Controllers
             await _gameManager.ScanGamesDirectoryAsync();
             
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("v1/GetGameFile")]
+        public async Task<IActionResult> GetDownloadGameAsync(Guid gameId, string fileDir)
+        {
+            GameFile? foundGameFile = await _dbContext.GameFiles.FindAsync(gameId, fileDir);
+
+            if (foundGameFile == null)
+            {
+                return BadRequest("Game file not found");
+            }
+
+            string gameFilePathFromGamesDir = _gameManager.GetGamesDir() + '/' + foundGameFile.Directory;
+
+            return Ok(new FileStream(gameFilePathFromGamesDir, FileMode.Open, FileAccess.Read, FileShare.None,
+                1024));
         }
 
         [HttpPost]
