@@ -24,7 +24,7 @@ public class GameManager
         return GAMES_DIR;
     }
 
-    public string GetSaveFiles()
+    public string GetSaveFileDir()
     {
         return SAVE_FILES_DIR;
     }

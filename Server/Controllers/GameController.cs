@@ -187,7 +187,7 @@ namespace Server.Controllers
                 return BadRequest("Given game id not found");
             }
 
-            string saveFilesPath = _gameManager.GetSaveFiles() + '/' + foundGame.Name;
+            string saveFilesPath = _gameManager.GetSaveFileDir() + '/' + foundGame.Name;
 
             await UploadMultipartFilesAsync(Request.Body, Request.ContentType, saveFilesPath);
 
@@ -195,6 +195,30 @@ namespace Server.Controllers
 
             return Ok();
 
+        }
+
+        [HttpGet]
+        [Route("v1/GetSaveFile")]
+        public async Task<IActionResult> GetSaveFileAsync(Guid gameId, string saveFileDir)
+        {
+            User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return BadRequest("Must be signed in to upload game files");
+            }
+            
+            GameSave? foundGameSave = await _dbContext.GameSaves.FindAsync(currentUser.Id, gameId,
+                saveFileDir);
+            
+            if (foundGameSave == null)
+            {
+                return BadRequest("Game file not found");
+            }
+            
+            string gameFilePathFromGamesDir = _gameManager.GetSaveFileDir() + '/' + foundGameSave.Directory;
+
+            return Ok(new FileStream(gameFilePathFromGamesDir, FileMode.Open, FileAccess.Read, FileShare.None,
+                1024));
         }
         
         private bool IsMultipartFormData(HttpRequest request)
