@@ -297,6 +297,28 @@ public class ProfileController : Controller
 
         return Ok(profileGames);
     }
+
+    [HttpDelete]
+    [Route("v1/DeleteProfileGame")]
+    public async Task<IActionResult> DeleteProfileGameAsync(Guid gameId)
+    {
+        User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+        if (currentUser == null)
+        {
+            return BadRequest("Must be signed in to delete profile games");
+        }
+
+        ProfileGames? profileGame = await _dbContext.ProfileGames.FindAsync(currentUser.Id, gameId);
+        if (profileGame == null)
+        {
+            return BadRequest("Profile game not found");
+        }
+
+        _dbContext.ProfileGames.Remove(profileGame);
+        await _dbContext.SaveChangesAsync();
+
+        return Ok();
+    }
     
     
     
