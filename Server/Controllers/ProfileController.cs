@@ -273,6 +273,30 @@ public class ProfileController : Controller
 
         return Ok();
     }
+
+    [HttpGet]
+    [Route("v1/GetProfileGames")]
+    public async Task<IActionResult> GetProfileGamesAsync(string profileId)
+    {
+        User? profile = await _dbContext.Users.FindAsync(profileId);
+        if (profile == null)
+        {
+            return BadRequest("User id not found");
+        }
+
+        List<ProfileGames> profileGames = _dbContext.ProfileGames.Where(pg => pg.UserId == profileId).ToList();
+
+        // Removing references to other objects to avoid issues with json serializer
+        foreach (ProfileGames profileGame in profileGames)
+        {
+            profileGame.GameId = Guid.Empty;
+            profileGame.Game = null;
+            profileGame.UserId = null;
+            profileGame.User = null;
+        }
+
+        return Ok(profileGames);
+    }
     
     
     
