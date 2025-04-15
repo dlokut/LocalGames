@@ -6,7 +6,8 @@ namespace Server.Database
     public class ProfileComment
     {
         [Key]
-        public string tId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public string Id { get; set; }
 
         [ForeignKey(nameof(Commenter))]
         public string CommenterId { get; set; }

@@ -24,7 +24,7 @@ public class ProfileController : Controller
         ".gif"
     ];
 
-    private const string MISSING_PROFILE_PIC_FILE = "missing-image.png";
+    private const string MISSING_PROFILE_BACKGROUND_PIC_FILE = "missing-image.png";
     
     private readonly ServerDbContext _dbContext;
 
@@ -104,12 +104,69 @@ public class ProfileController : Controller
         }
 
         string profilePicFileName = foundUser.ProfilePicFileName;
-        profilePicFileName ??= MISSING_PROFILE_PIC_FILE;
+        profilePicFileName ??= MISSING_PROFILE_BACKGROUND_PIC_FILE;
         
         string profilePicFilePath = Path.Combine(PROFILE_PICS_DIR, profilePicFileName);
 
         return Ok(new FileStream(profilePicFilePath, FileMode.Open, FileAccess.Read));
     }
+    
+    [HttpGet]
+    [Route("v1/GetBackgroundPic")]
+    public async Task<IActionResult> GetBackgroundPicAsync(string userId)
+    {
+        User? foundUser = await _dbContext.Users.FindAsync(userId);
+
+        if (foundUser == null)
+        {
+            return BadRequest("User id not found");
+        }
+
+        string backgroundPicFileName = foundUser.BackgroundPicFileName;
+        backgroundPicFileName ??= MISSING_PROFILE_BACKGROUND_PIC_FILE;
+        
+        string backgroundPicFilePath = Path.Combine(BACKGROUND_PICS_DIR, backgroundPicFileName);
+        
+        return Ok(new FileStream(backgroundPicFilePath, FileMode.Open, FileAccess.Read));
+    }
+
+    [HttpPost]
+    [Route("v1/PostComment")]
+    public async Task<IActionResult> PostCommentAsync(string profileId, string commentContent)
+    {
+        User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+        if (currentUser == null)
+        {
+            return BadRequest("Must be signed in to upload background pic");
+        }
+         
+        User? profile = await _dbContext.Users.FindAsync(profileId);
+        if (profile == null)
+        {
+            return BadRequest("User id not found");
+        }
+
+        if (profile.ProfileIsPrivate || profile.ProfileCommentsEnabled == false)
+        {
+            return new ForbidResult();
+        }
+
+        ProfileComment newComment = new ProfileComment()
+        {
+            UserProfileId = profile.Id,
+            CommenterId = currentUser.Id,
+            Content = commentContent
+        };
+
+        await _dbContext.Comments.AddAsync(newComment);
+        await _dbContext.SaveChangesAsync();
+        
+        return Ok();
+    }
+    
+    
+    
+    
     
     
     
