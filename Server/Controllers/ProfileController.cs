@@ -209,6 +209,36 @@ public class ProfileController : Controller
 
         return Ok();
     }
+
+    [HttpGet]
+    [Route("v1/GetProfileIsPrivate")]
+    public async Task<IActionResult> GetProfileIsPrivateAsync(string profileId)
+    {
+        User? profile = await _dbContext.Users.FindAsync(profileId);
+        if (profile == null)
+        {
+            return BadRequest("User id not found");
+        }
+
+        return Ok(profile.ProfileIsPrivate);
+    }
+
+    [HttpGet]
+    [Route("v1/PostProfileIsPrivate")]
+    public async Task<IActionResult> PostProfileIsPrivateAsync(bool profileIsPrivate)
+    {
+        User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+        if (currentUser == null)
+        {
+            return BadRequest("Must be signed in to set profile visibility");
+        }
+        
+        currentUser.ProfileIsPrivate = profileIsPrivate;
+        _dbContext.Users.Update(currentUser);
+        await _dbContext.SaveChangesAsync();
+
+        return Ok();
+    }
     
     
     
