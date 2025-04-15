@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="Games\" />
+    <Folder Include="ProfilePics\" />
     <Folder Include="SaveFiles\" />
   </ItemGroup>
 
