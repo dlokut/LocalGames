@@ -239,6 +239,41 @@ public class ProfileController : Controller
 
         return Ok();
     }
+
+    [HttpPost]
+    [Route("v1/PostProfileGame")]
+    public async Task<IActionResult> PostProfileGameAsync(Guid gameId)
+    {
+        User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+        if (currentUser == null)
+        {
+            return BadRequest("Must be signed in to upload profile games");
+        }
+
+        Game? foundGame = await _dbContext.Games.FindAsync(gameId);
+        if (foundGame == null)
+        {
+            return BadRequest("Game id not found");
+        }
+
+        ProfileGames? foundProfileGame = await _dbContext.ProfileGames.FindAsync(currentUser.Id, gameId);
+        if (foundProfileGame != null)
+        {
+            return BadRequest("Profile game already added");
+        }
+
+        ProfileGames profileGame = new ProfileGames()
+        {
+            UserId = currentUser.Id,
+            GameId = foundGame.Id
+        };
+
+        await _dbContext.ProfileGames.AddAsync(profileGame);
+        await _dbContext.SaveChangesAsync();
+
+        return Ok();
+    }
+    
     
     
     
