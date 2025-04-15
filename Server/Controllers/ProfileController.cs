@@ -168,10 +168,29 @@ public class ProfileController : Controller
     [Route("v1/GetProfileComments")]
     public async Task<IActionResult> GetProfileCommentsAsync(string profileId)
     {
+        User? profile = await _dbContext.Users.FindAsync(profileId);
+        if (profile == null)
+        {
+            return BadRequest("User id not found");
+        }
+        
         List<ProfileComment> profileComments = _dbContext.Comments.Where(c => c.UserProfileId == profileId)
             .ToList();
 
         return Ok(profileComments);
+    }
+
+    [HttpGet]
+    [Route("v1/GetProfileCommentsEnabled")]
+    public async Task<IActionResult> GetProfileCommentsEnabled(string profileId)
+    {
+        User? profile = await _dbContext.Users.FindAsync(profileId);
+        if (profile == null)
+        {
+            return BadRequest("User id not found");
+        }
+        
+        return Ok(profile.ProfileCommentsEnabled);
     }
     
     
