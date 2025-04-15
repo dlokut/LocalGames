@@ -21,6 +21,8 @@ public class ProfileController : Controller
         ".jpeg",
         ".gif"
     ];
+
+    private const string MISSING_PROFILE_PIC_FILE = "missing-image.png";
     
     private readonly ServerDbContext _dbContext;
 
@@ -58,6 +60,26 @@ public class ProfileController : Controller
         await _dbContext.SaveChangesAsync();
         
         return Ok();
+    }
+
+    [HttpGet]
+    [Route("v1/GetProfilePic")]
+    public async Task<IActionResult> GetProfilePicAsync(string userId)
+    {
+        User? foundUser = await _dbContext.Users.FindAsync(userId);
+
+        if (foundUser == null)
+        {
+            return BadRequest("User id not found");
+        }
+
+        string profilePicFileName = foundUser.ProfilePicFileName;
+        profilePicFileName ??= MISSING_PROFILE_PIC_FILE;
+        
+        string profilePicFilePath = Path.Combine(PROFILE_PICS_DIR, profilePicFileName);
+
+        Response.Headers.ContentDisposition = "attachment";
+        return Ok(new FileStream(profilePicFilePath, FileMode.Open, FileAccess.Read));
     }
     
     
