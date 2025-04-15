@@ -148,7 +148,7 @@ public class ProfileController : Controller
 
         if (profile.ProfileIsPrivate || profile.ProfileCommentsEnabled == false)
         {
-            return new ForbidResult();
+            return StatusCode(StatusCodes.Status403Forbidden);
         }
 
         ProfileComment newComment = new ProfileComment()
