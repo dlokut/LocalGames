@@ -11,17 +11,17 @@ namespace Server.Controllers
     {
         private const string FORWARDED_IP_HEADER = "X-Forwarded-For";
 
-        private readonly ServerDbContext dbContext;
+        private readonly ServerDbContext _dbContext;
 
-        private readonly UserManager<User> userManager;
+        private readonly UserManager<User> _userManager;
 
         private readonly SignInManager<User> _signInManager;
 
 
         public UserController(UserManager<User> userManager, ServerDbContext dbContext, SignInManager<User> signInManager)
         {
-            this.userManager = userManager;
-            this.dbContext = dbContext;
+            this._userManager = userManager;
+            this._dbContext = dbContext;
             _signInManager = signInManager;
         }
 
@@ -47,12 +47,12 @@ namespace Server.Controllers
                 IpAddress = userIpAddress
             };
 
-            IdentityResult registerResult = await userManager.CreateAsync(newUser, password);
+            IdentityResult registerResult = await _userManager.CreateAsync(newUser, password);
 
-            bool FIRST_USER = dbContext.Users.Count() == 1;
+            bool FIRST_USER = _dbContext.Users.Count() == 1;
             if (FIRST_USER)
             {
-                await userManager.AddToRoleAsync(newUser, "Admin");
+                await _userManager.AddToRoleAsync(newUser, "Admin");
             }
 
             if (registerResult.Succeeded) return Ok();
@@ -63,7 +63,7 @@ namespace Server.Controllers
         [Route("v1/PostLogin")]
         public async Task<ActionResult> Login([FromBody] string password, string username)
         {
-            User user = await userManager.FindByNameAsync(username);
+            User user = await _userManager.FindByNameAsync(username);
             if (user == null) return BadRequest("Username not found");
 
             if (await UserIsBanned(user.Id))
@@ -84,14 +84,14 @@ namespace Server.Controllers
 
         private async Task<bool> IpAddressIsBanned(string ipAddress)
         {
-            List<BannedUser> bannedUsersWithIp = dbContext.BannedUsers.Where(bu => bu.IpAddress == ipAddress).ToList();
+            List<BannedUser> bannedUsersWithIp = _dbContext.BannedUsers.Where(bu => bu.IpAddress == ipAddress).ToList();
 
             return bannedUsersWithIp.Any();
         }
 
         private async Task<bool> UserIsBanned(string userId)
         {
-            BannedUser? bannedUser = await dbContext.BannedUsers.FindAsync(userId);
+            BannedUser? bannedUser = await _dbContext.BannedUsers.FindAsync(userId);
 
             return bannedUser != null;
         }
@@ -102,7 +102,7 @@ namespace Server.Controllers
         [Route("v1/GetUsername")]
         public async Task<IActionResult> GetUsernameAsync(string userId)
         {
-            User? foundUser = await dbContext.Users.FindAsync(userId);
+            User? foundUser = await _dbContext.Users.FindAsync(userId);
             if (foundUser == null) return BadRequest("User with given id not found");
 
             return Ok(foundUser.UserName);
@@ -112,7 +112,7 @@ namespace Server.Controllers
         [Route("v1/GetAllUserIds")]
         public async Task<IActionResult> GetAllUserIds()
         {
-            List<User> allUsers = await dbContext.Users.ToListAsync();
+            List<User> allUsers = await _dbContext.Users.ToListAsync();
             List<string> userIds = allUsers.Select(user => user.Id).ToList();
 
             return Ok(userIds);
@@ -123,10 +123,10 @@ namespace Server.Controllers
         [Route("v1/PostAddFriend")]
         public async Task<IActionResult> PostAddFriendAsync(string friendId)
         {
-            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            User currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null) return BadRequest("Must be logged in");
 
-            User friendToAdd = await dbContext.Users.FindAsync(friendId);
+            User friendToAdd = await _dbContext.Users.FindAsync(friendId);
             if (friendToAdd == null) return BadRequest("User with given id not found");
 
             if (currentUser.Id == friendToAdd.Id) return BadRequest("Cannot add self as friend");
@@ -140,8 +140,8 @@ namespace Server.Controllers
             newFriends.User1Id = currentUser.Id;
             newFriends.User2Id = friendToAdd.Id;
 
-            await dbContext.Friends.AddAsync(newFriends);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.Friends.AddAsync(newFriends);
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
@@ -150,7 +150,7 @@ namespace Server.Controllers
         [Route("v1/GetFriendIds")]
         public async Task<IActionResult> GetFriendIdsAsync()
         {
-            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            User currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null) return BadRequest("Must be logged in");
 
             IEnumerable<string>? friendIds = GetFriendIds(currentUser.Id);
@@ -163,26 +163,26 @@ namespace Server.Controllers
         [Route("v1/PostRemoveFriend")]
         public async Task<IActionResult> PostRemoveFriend(string friendId)
         {
-            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            User currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null) return BadRequest("Must be logged in");
 
             if (currentUser.Id == friendId) return BadRequest("Cannot remove self as friend");
 
-            Friends friends = await dbContext.Friends.FindAsync(currentUser.Id, friendId);
-            friends ??= await dbContext.Friends.FindAsync(friendId, currentUser.Id);
+            Friends friends = await _dbContext.Friends.FindAsync(currentUser.Id, friendId);
+            friends ??= await _dbContext.Friends.FindAsync(friendId, currentUser.Id);
 
             if (friends == null) return BadRequest("User with given id is not a friend");
 
-            dbContext.Friends.Remove(friends);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Friends.Remove(friends);
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
 
         private async Task<bool> FriendAlreadyAddedAsync(string user1Id, string user2Id)
         {
-            Friends foundFriends = await dbContext.Friends.FindAsync(user1Id, user2Id);
-            foundFriends ??= await dbContext.Friends.FindAsync(user2Id, user1Id);
+            Friends foundFriends = await _dbContext.Friends.FindAsync(user1Id, user2Id);
+            foundFriends ??= await _dbContext.Friends.FindAsync(user2Id, user1Id);
 
             if (foundFriends != null) return true;
             return false;
@@ -193,7 +193,7 @@ namespace Server.Controllers
         {
             List<string> friendIds = new List<string>();
 
-            var foundFriends = dbContext.Friends.Where(f => (f.User1Id == userId) || (f.User2Id == userId));
+            var foundFriends = _dbContext.Friends.Where(f => (f.User1Id == userId) || (f.User2Id == userId));
 
             if (!foundFriends.Any()) return null;
 
@@ -218,10 +218,10 @@ namespace Server.Controllers
         [Route("v1/PostBlock")]
         public async Task<IActionResult> PostBlock(string blockedId)
         {
-            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            User currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null) return BadRequest("Must be logged in");
 
-            User userToBlock = await dbContext.Users.FindAsync(blockedId);
+            User userToBlock = await _dbContext.Users.FindAsync(blockedId);
             if (userToBlock == null) return BadRequest("User with given id not found");
 
             if (currentUser.Id == userToBlock.Id) return BadRequest("Cannot block self");
@@ -237,8 +237,8 @@ namespace Server.Controllers
                 BlockedId = userToBlock.Id
             };
 
-            await dbContext.BlockedUsers.AddAsync(blocked);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.BlockedUsers.AddAsync(blocked);
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
@@ -247,17 +247,17 @@ namespace Server.Controllers
         [Route("v1/PostUnblock")]
         public async Task<IActionResult> PostUnblockAsync(string blockedId)
         {
-            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            User currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null) return BadRequest("Must be logged in");
 
             if (currentUser.Id == blockedId) return BadRequest("Cannot unblock self");
 
-            BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(blockedId, currentUser.Id);
+            BlockedUser blocked = await _dbContext.BlockedUsers.FindAsync(blockedId, currentUser.Id);
 
             if (blocked == null) return BadRequest("User with given id is not blocked");
 
-            dbContext.BlockedUsers.Remove(blocked);
-            await dbContext.SaveChangesAsync();
+            _dbContext.BlockedUsers.Remove(blocked);
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
@@ -266,10 +266,10 @@ namespace Server.Controllers
         [Route("v1/GetUserBlocked")]
         public async Task<IActionResult> GetUserBlocked(string blockedId)
         {
-            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            User currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null) return BadRequest("Must be logged in");
 
-            BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(blockedId, currentUser.Id);
+            BlockedUser blocked = await _dbContext.BlockedUsers.FindAsync(blockedId, currentUser.Id);
 
             return Ok(blocked != null);
         }
@@ -278,10 +278,10 @@ namespace Server.Controllers
         [Route("v1/GetIsBlockedBy")]
         public async Task<IActionResult> GetIsBlockedBy(string blockerId)
         {
-            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            User currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null) return BadRequest("Must be logged in");
 
-            BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(currentUser.Id, blockerId);
+            BlockedUser blocked = await _dbContext.BlockedUsers.FindAsync(currentUser.Id, blockerId);
 
             return Ok(blocked != null);
         }
@@ -289,7 +289,7 @@ namespace Server.Controllers
 
         private async Task<bool> UserAlreadyBlockedAsync(string blockerId, string blockedId)
         {
-            BlockedUser blocked = await dbContext.BlockedUsers.FindAsync(blockedId, blockerId);
+            BlockedUser blocked = await _dbContext.BlockedUsers.FindAsync(blockedId, blockerId);
             return blocked != null;
         }
 
@@ -301,20 +301,20 @@ namespace Server.Controllers
         [Route("v1/PostBanUser")]
         public async Task<IActionResult> PostBanUserAsync(string userId)
         {
-            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            User currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null) return BadRequest("Must be logged in");
 
-            if ((await userManager.IsInRoleAsync(currentUser, "Admin")) == false)
+            if ((await _userManager.IsInRoleAsync(currentUser, "Admin")) == false)
             {
                 return Forbid();
             }
 
             if (currentUser.Id == userId) return BadRequest("Cannot ban self");
 
-            User userToBan = await dbContext.Users.FindAsync(userId);
+            User userToBan = await _dbContext.Users.FindAsync(userId);
             if (userToBan == null) return BadRequest("User with given id not found");
 
-            if ((await userManager.IsInRoleAsync(userToBan, "Admin"))) 
+            if ((await _userManager.IsInRoleAsync(userToBan, "Admin"))) 
             {
                 return Forbid();
             }
@@ -325,8 +325,8 @@ namespace Server.Controllers
                 IpAddress = userToBan.IpAddress
             };
 
-            await dbContext.BannedUsers.AddAsync(bannedUser);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.BannedUsers.AddAsync(bannedUser);
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }
@@ -335,21 +335,21 @@ namespace Server.Controllers
         [Route("v1/PostUnbanUser")]
         public async Task<IActionResult> PostUnbanUser(string userId)
         {
-            User currentUser = await userManager.GetUserAsync(HttpContext.User);
+            User currentUser = await _userManager.GetUserAsync(HttpContext.User);
             if (currentUser == null) return BadRequest("Must be logged in");
 
-            if ((await userManager.IsInRoleAsync(currentUser, "Admin")) == false)
+            if ((await _userManager.IsInRoleAsync(currentUser, "Admin")) == false)
             {
                 return Forbid();
             }
 
             if (currentUser.Id == userId) return BadRequest("Cannot unban self");
 
-            BannedUser bannedUser = dbContext.BannedUsers.Find(userId);
+            BannedUser bannedUser = _dbContext.BannedUsers.Find(userId);
             if (bannedUser == null) return BadRequest("User with given id already not banned");
 
-            dbContext.BannedUsers.Remove(bannedUser);
-            await dbContext.SaveChangesAsync();
+            _dbContext.BannedUsers.Remove(bannedUser);
+            await _dbContext.SaveChangesAsync();
 
             return Ok();
         }

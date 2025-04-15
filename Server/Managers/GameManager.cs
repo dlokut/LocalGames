@@ -5,9 +5,9 @@ namespace Server.Managers;
 
 public class GameManager
 {
-    private readonly IDbContextFactory<ServerDbContext> dbContextFactory;
+    private readonly IDbContextFactory<ServerDbContext> _dbContextFactory;
 
-    private readonly IgdbManager igdbManager;
+    private readonly IgdbManager _igdbManager;
     
     public const string GAMES_DIR = "Games";
     
@@ -15,8 +15,8 @@ public class GameManager
     
     public GameManager(IDbContextFactory<ServerDbContext> dbContextFactory, IgdbManager igdbManager)
     {
-        this.dbContextFactory = dbContextFactory;
-        this.igdbManager = igdbManager;
+        this._dbContextFactory = dbContextFactory;
+        this._igdbManager = igdbManager;
     }
 
     public string GetGamesDir()
@@ -31,7 +31,7 @@ public class GameManager
 
     public async Task<bool> UpdateGameMetadataAsync(Guid gameId, long igdbId)
     {
-        using (ServerDbContext dbContext = await dbContextFactory.CreateDbContextAsync())
+        using (ServerDbContext dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
             Game gameToUpdate = await dbContext.Games.FindAsync(gameId);
             Game? gameWithMetadata = await ApplyGameMetadataAsync(gameToUpdate, igdbId);
@@ -61,7 +61,7 @@ public class GameManager
 
     private async Task DeletePreviousArtworkAsync(Guid gameId)
     {
-        using (ServerDbContext dbContext = await dbContextFactory.CreateDbContextAsync())
+        using (ServerDbContext dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
             List<Artwork> artworks = dbContext.Artworks.Where(a => a.GameId == gameId).ToList();
             
@@ -90,7 +90,7 @@ public class GameManager
             });
         }
 
-        using (ServerDbContext dbContext = await dbContextFactory.CreateDbContextAsync())
+        using (ServerDbContext dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
             await dbContext.GameSaves.AddRangeAsync(gameSaves);
             await dbContext.SaveChangesAsync();
@@ -162,7 +162,7 @@ public class GameManager
 
     private async Task<bool> GameAlreadyAddedAsync(string gameName)
     {
-        using (ServerDbContext dbContext = await dbContextFactory.CreateDbContextAsync())
+        using (ServerDbContext dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
             Game? foundGame = dbContext.Games.Where(g => g.Name == gameName)
                 .ToList()
@@ -207,7 +207,7 @@ public class GameManager
 
     private async Task<Game?> ApplyGameMetadataAsync(Game game, long? gameIgdbId = null)
     {
-        gameIgdbId ??= await igdbManager.GetGameIdAsync(game.Name);
+        gameIgdbId ??= await _igdbManager.GetGameIdAsync(game.Name);
 
         if (!gameIgdbId.HasValue)
         {
@@ -216,15 +216,15 @@ public class GameManager
 
         game.IgdbId = gameIgdbId;
 
-        game.Summary = await igdbManager.GetGameSummaryAsync(gameIgdbId.Value);
-        game.CoverUrl = "https:" + await igdbManager.GetCoverUrlAsync(gameIgdbId.Value);
+        game.Summary = await _igdbManager.GetGameSummaryAsync(gameIgdbId.Value);
+        game.CoverUrl = "https:" + await _igdbManager.GetCoverUrlAsync(gameIgdbId.Value);
 
         return game;
     }
 
     private async Task<List<Artwork>?> GetArtworksAsync(long igdbGameId)
     {
-        List<string>? artworkUrls = await igdbManager.GetArtworkUrlsAsync(igdbGameId);
+        List<string>? artworkUrls = await _igdbManager.GetArtworkUrlsAsync(igdbGameId);
 
         if (artworkUrls == null)
         {
@@ -242,7 +242,7 @@ public class GameManager
 
     private async Task AddGameToDbAsync(Game game, List<GameFile> gameFiles, List<Artwork>? artworks)
     {
-        using (ServerDbContext dbContext = await dbContextFactory.CreateDbContextAsync())
+        using (ServerDbContext dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
             await dbContext.Games.AddAsync(game);
 

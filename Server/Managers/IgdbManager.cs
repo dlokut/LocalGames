@@ -7,11 +7,11 @@ namespace Server.Managers
 {
     public class IgdbManager
     {
-        private readonly IGDBClient igdbClient;
+        private readonly IGDBClient _igdbClient;
 
         public IgdbManager(string clientId, string clientSecret)
         {
-            igdbClient = new IGDBClient(
+            _igdbClient = new IGDBClient(
                 clientId,
                 clientSecret
             );
@@ -19,7 +19,7 @@ namespace Server.Managers
 
         public async Task<long?> GetGameIdAsync(string gameName)
         {
-            IgdbGame[] foundGames = await igdbClient.QueryAsync<IgdbGame>(IGDBClient.Endpoints.Games, 
+            IgdbGame[] foundGames = await _igdbClient.QueryAsync<IgdbGame>(IGDBClient.Endpoints.Games, 
                 query: $"search \"{gameName}\"; fields id;");
 
             if (foundGames.Length == 0)
@@ -35,7 +35,7 @@ namespace Server.Managers
 
         public async Task<string> GetGameSummaryAsync(long gameIgdbId)
         {
-            IgdbGame[] foundGames = await igdbClient.QueryAsync<IgdbGame>(IGDBClient.Endpoints.Games, 
+            IgdbGame[] foundGames = await _igdbClient.QueryAsync<IgdbGame>(IGDBClient.Endpoints.Games, 
                 query: $"where id = {gameIgdbId}; fields summary;");
 
             IgdbGame foundGame = foundGames.First();
@@ -59,7 +59,7 @@ namespace Server.Managers
 
         private async Task<string?> GetCoverIdAsync(long gameIgdbId)
         {
-            Cover[] foundCovers = await igdbClient.QueryAsync<Cover>(IGDBClient.Endpoints.Covers, 
+            Cover[] foundCovers = await _igdbClient.QueryAsync<Cover>(IGDBClient.Endpoints.Covers, 
                 query: $"where game = {gameIgdbId}; fields image_id;");
 
             if (foundCovers.Length == 0)
@@ -93,7 +93,7 @@ namespace Server.Managers
         
         private async Task<List<string>?> GetArtworkIdsAsync(long gameIgdbId)
         {
-            IgdbArtwork[] foundArtworks = await igdbClient.QueryAsync<IgdbArtwork>(IGDBClient.Endpoints.Artworks, 
+            IgdbArtwork[] foundArtworks = await _igdbClient.QueryAsync<IgdbArtwork>(IGDBClient.Endpoints.Artworks, 
                 query: $"where game = {gameIgdbId}; fields image_id;");
 
             if (foundArtworks.Length == 0)
