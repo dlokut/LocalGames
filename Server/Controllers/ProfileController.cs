@@ -192,6 +192,23 @@ public class ProfileController : Controller
         
         return Ok(profile.ProfileCommentsEnabled);
     }
+
+    [HttpPost]
+    [Route("v1/PostProfileCommentsEnabled")]
+    public async Task<IActionResult> PostProfileCommentsEnabledAsync(bool profileCommentsEnabled)
+    {
+        User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+        if (currentUser == null)
+        {
+            return BadRequest("Must be signed in to set profile comments enabled/disabled");
+        }
+
+        currentUser.ProfileCommentsEnabled = profileCommentsEnabled;
+        _dbContext.Users.Update(currentUser);
+        await _dbContext.SaveChangesAsync();
+
+        return Ok();
+    }
     
     
     
