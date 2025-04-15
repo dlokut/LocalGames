@@ -52,9 +52,15 @@ public class ProfileController : Controller
         string profilePicFilePath = Path.Combine(PROFILE_PICS_DIR, profilePic.FileName);
         using FileStream fileStream = new FileStream(profilePicFilePath, FileMode.Create);
         await profilePic.CopyToAsync(fileStream);
+
+        currentUser.ProfilePicFileName = profilePic.FileName;
+        _dbContext.Users.Update(currentUser);
+        await _dbContext.SaveChangesAsync();
         
         return Ok();
     }
+    
+    
     
     
 }
