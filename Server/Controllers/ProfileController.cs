@@ -256,13 +256,13 @@ public class ProfileController : Controller
             return BadRequest("Game id not found");
         }
 
-        ProfileGames? foundProfileGame = await _dbContext.ProfileGames.FindAsync(currentUser.Id, gameId);
+        ProfileGame? foundProfileGame = await _dbContext.ProfileGames.FindAsync(currentUser.Id, gameId);
         if (foundProfileGame != null)
         {
             return BadRequest("Profile game already added");
         }
 
-        ProfileGames profileGame = new ProfileGames()
+        ProfileGame profileGame = new ProfileGame()
         {
             UserId = currentUser.Id,
             GameId = foundGame.Id
@@ -284,10 +284,10 @@ public class ProfileController : Controller
             return BadRequest("User id not found");
         }
 
-        List<ProfileGames> profileGames = _dbContext.ProfileGames.Where(pg => pg.UserId == profileId).ToList();
+        List<ProfileGame> profileGames = _dbContext.ProfileGames.Where(pg => pg.UserId == profileId).ToList();
 
         // Removing references to other objects to avoid issues with json serializer
-        foreach (ProfileGames profileGame in profileGames)
+        foreach (ProfileGame profileGame in profileGames)
         {
             profileGame.GameId = Guid.Empty;
             profileGame.Game = null;
@@ -308,7 +308,7 @@ public class ProfileController : Controller
             return BadRequest("Must be signed in to delete profile games");
         }
 
-        ProfileGames? profileGame = await _dbContext.ProfileGames.FindAsync(currentUser.Id, gameId);
+        ProfileGame? profileGame = await _dbContext.ProfileGames.FindAsync(currentUser.Id, gameId);
         if (profileGame == null)
         {
             return BadRequest("Profile game not found");

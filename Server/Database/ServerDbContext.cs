@@ -21,7 +21,7 @@ namespace Server.Database
 
         public DbSet<Game> Games { get; set; }
 
-        public DbSet<ProfileGames> ProfileGames { get; set; }
+        public DbSet<ProfileGame> ProfileGames { get; set; }
 
         public DbSet<GameSave> GameSaves { get; set; }
 
