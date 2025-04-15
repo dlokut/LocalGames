@@ -163,6 +163,16 @@ public class ProfileController : Controller
         
         return Ok();
     }
+
+    [HttpGet]
+    [Route("v1/GetProfileComments")]
+    public async Task<IActionResult> GetProfileCommentsAsync(string profileId)
+    {
+        List<ProfileComment> profileComments = _dbContext.Comments.Where(c => c.UserProfileId == profileId)
+            .ToList();
+
+        return Ok(profileComments);
+    }
     
     
     
