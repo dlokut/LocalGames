@@ -223,7 +223,7 @@ public class ProfileController : Controller
         return Ok(profile.ProfileIsPrivate);
     }
 
-    [HttpGet]
+    [HttpPost]
     [Route("v1/PostProfileIsPrivate")]
     public async Task<IActionResult> PostProfileIsPrivateAsync(bool profileIsPrivate)
     {
