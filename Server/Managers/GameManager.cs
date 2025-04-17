@@ -216,6 +216,7 @@ public class GameManager
 
         game.IgdbId = gameIgdbId;
 
+        game.Name = await _igdbManager.GetGameNameAsync(gameIgdbId.Value);
         game.Summary = await _igdbManager.GetGameSummaryAsync(gameIgdbId.Value);
         game.CoverUrl = "https:" + await _igdbManager.GetCoverUrlAsync(gameIgdbId.Value);
 

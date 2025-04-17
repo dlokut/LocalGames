@@ -17,10 +17,10 @@ namespace Server.Managers
             );
         }
 
-        public async Task<long?> GetGameIdAsync(string gameName)
+        public async Task<long?> GetGameIdAsync(string gameFolderName)
         {
             IgdbGame[] foundGames = await _igdbClient.QueryAsync<IgdbGame>(IGDBClient.Endpoints.Games, 
-                query: $"search \"{gameName}\"; fields id;");
+                query: $"search \"{gameFolderName}\"; fields id;");
 
             if (foundGames.Length == 0)
             {
@@ -41,6 +41,16 @@ namespace Server.Managers
             IgdbGame foundGame = foundGames.First();
 
             return foundGame.Summary;
+        }
+        
+        public async Task<string> GetGameNameAsync(long gameIgdbId)
+        {
+            IgdbGame[] foundGames = await _igdbClient.QueryAsync<IgdbGame>(IGDBClient.Endpoints.Games, 
+                query: $"where id = {gameIgdbId}; fields name;");
+
+            IgdbGame foundGame = foundGames.First();
+
+            return foundGame.Name;
         }
 
         public async Task<string?> GetCoverUrlAsync(long gameIgdbId)
@@ -103,6 +113,7 @@ namespace Server.Managers
 
             return foundArtworks.Select(a => a.ImageId).ToList();
         }
+        
 
         
     }
