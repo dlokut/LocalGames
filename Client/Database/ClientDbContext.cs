@@ -6,7 +6,8 @@ public class ClientDbContext : DbContext
 {
     public ClientDbContext()  
     {
-       Database.EnsureCreated();
+        //Database.EnsureDeleted();
+        Database.EnsureCreated();
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -15,6 +16,8 @@ public class ClientDbContext : DbContext
     }
 
     public DbSet<DownloadedGame> DownloadedGames { get; set; }
+
+    public DbSet<GameFile> GameFiles { get; set; }
     
     public DbSet<ProtonSettings> ProtonSettings { get; set; }
 
