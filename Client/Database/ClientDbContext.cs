@@ -4,6 +4,10 @@ namespace Client.Database;
 
 public class ClientDbContext : DbContext
 {
+    public ClientDbContext()  
+    {
+       Database.EnsureCreated();
+    }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite("Data Source=ClientDb.db");
