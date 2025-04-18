@@ -6,17 +6,18 @@ namespace Client.Models;
 
 public class ProtonManager
 {
-   private const string PROTON_VERSIONS_DIR = "Proton";
+    private const string PROTON_VERSION_DIR = "Proton";
 
-   public List<string> GetProtonVersions()
-   {
-      if (!Directory.Exists(PROTON_VERSIONS_DIR))
-      {
-         Directory.CreateDirectory(PROTON_VERSIONS_DIR);
-      }
-
-      List<string> protonVersions = Directory.GetDirectories(PROTON_VERSIONS_DIR).ToList();
-
-      return protonVersions;
-   }
+    public List<string> GetProtonVersions()
+    {
+        if (!Directory.Exists(PROTON_VERSION_DIR))
+        {
+            Directory.CreateDirectory(PROTON_VERSION_DIR);
+        }
+        
+        List<string> protonVersions = Directory.GetDirectories(PROTON_VERSION_DIR).Select(d => 
+            d.Substring(d.IndexOf(Path.DirectorySeparatorChar) + 1)).ToList();
+        
+        return protonVersions;
+    }
 }
