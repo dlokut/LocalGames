@@ -21,7 +21,7 @@ public class ServerInfoManager
     {
         string saveFilePath = Path.Combine(Directory.GetCurrentDirectory(), ADDRESS_FILE_NAME);
 
-        using StreamReader saveFileReader = File.OpenText(ADDRESS_FILE_NAME);
+        using StreamReader saveFileReader = File.OpenText(saveFilePath);
         return await saveFileReader.ReadToEndAsync();
     }
 
@@ -31,5 +31,13 @@ public class ServerInfoManager
      
         await using StreamWriter saveFileWriter = File.CreateText(saveFilePath);
         await saveFileWriter.WriteAsync(cookie);   
+    }
+
+    public async Task<string> LoadLoginCookieAsync()
+    {
+        string saveFilePath = Path.Combine(Directory.GetCurrentDirectory(), COOKIES_FILE_NAME);
+     
+        using StreamReader saveFileReader = File.OpenText(saveFilePath);
+        return await saveFileReader.ReadToEndAsync();   
     }
 }
