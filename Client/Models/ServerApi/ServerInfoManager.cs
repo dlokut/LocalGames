@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Client.Models.ServerApi;
@@ -11,6 +13,11 @@ public class ServerInfoManager
     private const string ADDRESS_FILE_NAME = "ServerAddress.txt";
 
     private const string COOKIES_FILE_NAME = ".cookies";
+    
+    public readonly JsonSerializerOptions sharedJsonOptions = new JsonSerializerOptions()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
     
     public async Task SaveServerAddressAsync(string address)
     {

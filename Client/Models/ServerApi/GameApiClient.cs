@@ -20,16 +20,15 @@ public class GameApiClient
         using HttpResponseMessage response = await clientWithCookies.GetAsync(ALL_GAMES_ENDPOINT);
 
         string responseContentJson = await response.Content.ReadAsStringAsync();
-        JsonSerializerOptions jsonOptions = new JsonSerializerOptions()
-        {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        };
-        
+        JsonSerializerOptions jsonOptions = serverInfoManager.sharedJsonOptions;
         List<ServerGame> allGamesOnServer = JsonSerializer.Deserialize<List<ServerGame>>(responseContentJson,
             jsonOptions);
+        
         return allGamesOnServer;
 
     }
+    
+    //public async Task<>
 }
 
 public record ServerGame(Guid id, long fileSize, string name, string summary, string coverUrl);
