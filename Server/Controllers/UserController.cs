@@ -29,7 +29,7 @@ namespace Server.Controllers
 
         [HttpPost]
         [Route("v1/PostRegister")]
-        public async Task<ActionResult> Register([FromBody] string password, string username)
+        public async Task<ActionResult> Register(string password, string username)
         {
             // First, checks if X-Forwarded-For header has an ip address, if not, get ip directly.
             // This is incase use is connecting behind a proxy (might also happen if server is set up behind a reverse proxy)
@@ -61,7 +61,7 @@ namespace Server.Controllers
 
         [HttpPost]
         [Route("v1/PostLogin")]
-        public async Task<ActionResult> Login([FromBody] string password, string username)
+        public async Task<ActionResult> Login(string password, string username)
         {
             User user = await _userManager.FindByNameAsync(username);
             if (user == null) return BadRequest("Username not found");
