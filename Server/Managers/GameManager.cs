@@ -147,24 +147,25 @@ public class GameManager
         
         foreach (string subDir in Directory.GetDirectories(dir))
         {
-            string gameName = subDir.Substring(subDir.IndexOf('/') + 1);
+            string gameFolderName = subDir.Substring(subDir.IndexOf('/') + 1);
 
-            if (await GameAlreadyAddedAsync(gameName)) continue;
+            if (await GameAlreadyAddedAsync(gameFolderName)) continue;
             
             foundGames.Add(new Game()
             {
-                Name = gameName
+                Name = gameFolderName,
+                FolderName = gameFolderName
             });
         }
 
         return foundGames;
     }
 
-    private async Task<bool> GameAlreadyAddedAsync(string gameName)
+    private async Task<bool> GameAlreadyAddedAsync(string gameFolderName)
     {
         using (ServerDbContext dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
-            Game? foundGame = dbContext.Games.Where(g => g.Name == gameName)
+            Game? foundGame = dbContext.Games.Where(g => g.FolderName == gameFolderName)
                 .ToList()
                 .FirstOrDefault(defaultValue: null);
 

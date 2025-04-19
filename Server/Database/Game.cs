@@ -16,6 +16,8 @@ namespace Server.Database
         public string? Summary { get; set; }
 
         public string? CoverUrl { get; set; }
+        
+        public string FolderName { get; set; }
 
         public List<Playtime> Playtimes { get; set; }
 
