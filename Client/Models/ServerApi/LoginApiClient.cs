@@ -37,7 +37,11 @@ public class LoginApiClient
     
             string endpoint = $"{REGISTER_ENDPOINT}?username={username}&password={password}";
             using HttpResponseMessage response = await httpClient.PostAsync(endpoint, null);
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
+
+            if (!response.IsSuccessStatusCode) return false;
+            
+            ServerAddressManager serverAddressManager = new ServerAddressManager();
+            await serverAddressManager.SaveServerAddressAsync(serverAddress);
             
             return true;
         }
