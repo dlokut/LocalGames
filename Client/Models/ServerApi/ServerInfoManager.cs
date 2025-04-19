@@ -17,6 +17,7 @@ public class ServerInfoManager
     public readonly JsonSerializerOptions sharedJsonOptions = new JsonSerializerOptions()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        PropertyNameCaseInsensitive = true
     };
     
     public async Task SaveServerAddressAsync(string address)
