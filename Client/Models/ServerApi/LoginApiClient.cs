@@ -25,8 +25,8 @@ public class LoginApiClient
         
         if (!response.IsSuccessStatusCode) return false;
         
-        ServerAddressManager serverAddressManager = new ServerAddressManager();
-        await serverAddressManager.SaveServerAddressAsync(serverAddress);
+        ServerInfoManager serverInfoManager = new ServerInfoManager();
+        await serverInfoManager.SaveServerAddressAsync(serverAddress);
             
         return true;
     }
@@ -44,8 +44,8 @@ public class LoginApiClient
 
             if (!response.IsSuccessStatusCode) return false;
             
-            ServerAddressManager serverAddressManager = new ServerAddressManager();
-            await serverAddressManager.SaveServerAddressAsync(serverAddress);
+            ServerInfoManager serverInfoManager = new ServerInfoManager();
+            await serverInfoManager.SaveServerAddressAsync(serverAddress);
             
             return true;
         }
