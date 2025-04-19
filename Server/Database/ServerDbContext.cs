@@ -5,7 +5,10 @@ namespace Server.Database
 {
     public class ServerDbContext : IdentityDbContext<User>
     {
-        public ServerDbContext(DbContextOptions<ServerDbContext> dbContextOptions) : base(dbContextOptions) { }
+        public ServerDbContext(DbContextOptions<ServerDbContext> dbContextOptions) : base(dbContextOptions)
+        {
+            Database.EnsureCreated();
+        }
 
         public DbSet<User> Users { get; set; }
 
