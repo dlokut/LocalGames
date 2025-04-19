@@ -1,4 +1,7 @@
+using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Client.Models.ServerApi;
@@ -33,7 +36,29 @@ public class ServerInfoManager
         await saveFileWriter.WriteAsync(cookie);   
     }
 
-    public async Task<string> LoadLoginCookieAsync()
+    public async Task<HttpClient> GetClientWithLoginCookieAsync()
+    {
+        string cookie = await LoadLoginCookieAsync();
+        string cookieName = cookie.Substring(0, cookie.IndexOf("="));
+        string cookieValue = cookie.Substring(cookie.IndexOf("=") + 1);
+        
+        string serverAddress = await LoadServerAddressAsync();
+        
+        CookieContainer cookieContainer = new CookieContainer();
+        cookieContainer.Add(new Uri(serverAddress), new Cookie(cookieName, cookieValue));
+        
+        HttpClientHandler httpClientHandler = new HttpClientHandler()
+        {
+            CookieContainer = cookieContainer
+        };
+        HttpClient httpClient = new HttpClient(httpClientHandler)
+        {
+            BaseAddress = new Uri(serverAddress),
+        };
+
+        return httpClient;
+    }
+    private async Task<string> LoadLoginCookieAsync()
     {
         string saveFilePath = Path.Combine(Directory.GetCurrentDirectory(), COOKIES_FILE_NAME);
      
