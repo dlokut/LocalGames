@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -110,6 +111,34 @@ public class GameApiClient
             CoverUrl = serverGame.CoverUrl,
             FileSize = serverGame.FileSize
         };
+    }
+
+    public async Task UninstallGame(Guid gameId)
+    {
+        List<GameFile> gameFiles;
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            gameFiles = dbContext.GameFiles.Where(gf => gf.GameId == gameId).ToList();
+        }
+
+        foreach (GameFile gameFile in gameFiles)
+        {
+            File.Delete(Path.Combine(GAMES_DIR, gameFile.Directory));
+        }
+
+        await RemoveGameFromDb(gameId);
+
+    }
+
+    private async Task RemoveGameFromDb(Guid gameId)
+    {
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            DownloadedGame gameToRemove = await dbContext.DownloadedGames.FindAsync(gameId);
+
+            dbContext.DownloadedGames.Remove(gameToRemove);
+            await dbContext.SaveChangesAsync();
+        }
     }
 
 }
