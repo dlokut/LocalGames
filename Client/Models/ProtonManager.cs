@@ -40,17 +40,47 @@ public class ProtonManager
         }
     }
     
-    public async Task LaunchGame()
+    public async Task LaunchGame(Guid gameId)
     {
+        DownloadedGame gameToRun;
+        ProtonSettings protonSettings;
+
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            gameToRun = await dbContext.DownloadedGames.FindAsync(gameId);
+            protonSettings = await dbContext.ProtonSettings.FindAsync(gameId);
+        }
+
+        string absoluteProtonPath = Path.Combine(Directory.GetCurrentDirectory(), PROTON_VERSION_DIR,
+            protonSettings.ProtonVersion);
+        
         string gamePath = Path.Combine(Directory.GetCurrentDirectory(), "Games/NNF_FULLVERSION.exe");
         string prefixPath = Path.Combine(Directory.GetCurrentDirectory(), "Games/pfx");
-        string protonPath = Path.Combine(Directory.GetCurrentDirectory(), "Proton/GE-Proton9-27");
+        //string protonPath = Path.Combine(Directory.GetCurrentDirectory(), "Proton/GE-Proton9-27");
         
         Environment.SetEnvironmentVariable("WINEPREFIX", prefixPath);
-        Environment.SetEnvironmentVariable("PROTONPATH", protonPath);
+        //Environment.SetEnvironmentVariable("PROTONPATH", protonPath);
 
         Process process = Process.Start(UMU_EXECUTABLE_PATH, gamePath);
         
+    }
+
+    public async Task SetPrimaryExecutible(Guid gameId, string fileDir)
+    {
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            GameFile? gameFile = await dbContext.GameFiles.FindAsync(gameId, fileDir);
+
+            if (gameFile == null)
+            {
+                throw new Exception("Selected file is not in game directory");
+            }
+
+            gameFile.IsMainExecutable = true;
+            dbContext.GameFiles.Update(gameFile);
+
+            await dbContext.SaveChangesAsync();
+        }
     }
 
     public ProtonSettings CreateDefaultProtonSettings(DownloadedGame game)
