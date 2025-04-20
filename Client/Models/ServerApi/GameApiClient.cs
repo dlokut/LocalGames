@@ -38,7 +38,9 @@ public class GameApiClient
         {
             await DownloadGameFileAsync(game.Id, gameFile.Directory);
         }
-        
+
+        await AddGameToDbAsync(game, gameFiles);
+
     }
     
     private const string GAME_FILE_INFO_ENDPOINT = "Game/v1/GetGameFilesInfo";
@@ -79,8 +81,36 @@ public class GameApiClient
         FileStream gameFileStream = new FileStream(absoluteFileDir, FileMode.Create, FileAccess.Write, FileShare.None);
         await response.CopyToAsync(gameFileStream);
     }
-    
-    //private async Task AddGameToDbAsync()
+
+    private async Task AddGameToDbAsync(ServerGame game, List<GameFile> gameFiles)
+    {
+        DownloadedGame downloadedGame = ServerGameToDownloadedGame(game);
+
+        foreach (GameFile gameFile in gameFiles)
+        {
+            gameFile.GameId = downloadedGame.Id;
+        }
+
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            await dbContext.DownloadedGames.AddAsync(downloadedGame);
+            await dbContext.GameFiles.AddRangeAsync(gameFiles);
+
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
+    private DownloadedGame ServerGameToDownloadedGame(ServerGame serverGame)
+    {
+        return new DownloadedGame()
+        {
+            Id = serverGame.Id,
+            Name = serverGame.Name,
+            Summary = serverGame.Summary,
+            CoverUrl = serverGame.CoverUrl,
+            FileSize = serverGame.FileSize
+        };
+    }
 
 }
 
