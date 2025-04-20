@@ -116,6 +116,18 @@ public class ProtonManager
         return joinedVariablesString;
 
     }
+
+    public string CreateWrapperCommandsString(ProtonSettings settings)
+    {
+        List<string> wrapperCommands = new List<string>();
+        
+        if (settings.MangohudEnabled) wrapperCommands.Add("mangohud");
+        if (settings.GamemodeEnabled) wrapperCommands.Add("gamemoderun");
+        
+        string joinedVariablesString = String.Join(" ", wrapperCommands);
+        return joinedVariablesString;
+
+    }
     public async Task AddProtonEnvVariableAsync(Guid gameId, string key, string value)
     {
         ProtonEnvVariable protonEnvVariable = new ProtonEnvVariable()
