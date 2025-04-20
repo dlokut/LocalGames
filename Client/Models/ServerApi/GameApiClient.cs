@@ -30,9 +30,19 @@ public class GameApiClient
         return allGamesOnServer;
 
     }
+    public async Task DownloadGameAsync(Guid gameId)
+    {
+        List<GameFile> gameFiles = await GetGameFileInfoAsync(gameId);
+
+        foreach (GameFile gameFile in gameFiles)
+        {
+            await DownloadGameFileAsync(gameId, gameFile.Directory);
+        }
+        
+    }
 
     private const string GAME_FILE_INFO_ENDPOINT = "Game/v1/GetGameFilesInfo";
-    public async Task<List<GameFile>> GetGameFileInfoAsync(Guid gameId)
+    private async Task<List<GameFile>> GetGameFileInfoAsync(Guid gameId)
     {
          ServerInfoManager serverInfoManager = new ServerInfoManager();
          HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
@@ -51,7 +61,7 @@ public class GameApiClient
     }
 
     private const string GAME_FILE_DOWNLOAD_ENDPOINT = "Game/v1/GetDownloadGameFile";
-    public async Task DownloadGameFileAsync(Guid gameId, string fileDir)
+    private async Task DownloadGameFileAsync(Guid gameId, string fileDir)
     {
         ServerInfoManager serverInfoManager = new ServerInfoManager();
         HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
@@ -70,17 +80,6 @@ public class GameApiClient
         await response.CopyToAsync(gameFileStream);
     }
 
-    public string GetGameDir(string gameName)
-    {
-        string gameDir = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, gameName);
-
-        if (!Directory.Exists(gameDir))
-        {
-            Directory.CreateDirectory(gameDir);
-        }
-
-        return gameDir;
-    }
 }
 
 public record ServerGame(Guid id, long fileSize, string name, string summary, string coverUrl);
