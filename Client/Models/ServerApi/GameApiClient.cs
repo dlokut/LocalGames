@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,8 +11,9 @@ namespace Client.Models.ServerApi;
 
 public class GameApiClient
 {
-    private const string ALL_GAMES_ENDPOINT = "Game/v1/GetAllGames";
+    private const string GAMES_DIR = "Games";
     
+    private const string ALL_GAMES_ENDPOINT = "Game/v1/GetAllGames";
     public async Task<List<ServerGame>> GetAllGamesOnServer()
     {
         ServerInfoManager serverInfoManager = new ServerInfoManager();
@@ -46,6 +48,38 @@ public class GameApiClient
          
          return gameFiles;
        
+    }
+
+    private const string GAME_FILE_DOWNLOAD_ENDPOINT = "Game/v1/GetDownloadGameFile";
+    public async Task DownloadGameFileAsync(Guid gameId, string fileDir)
+    {
+        ServerInfoManager serverInfoManager = new ServerInfoManager();
+        HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
+
+        string endpoint = GAME_FILE_DOWNLOAD_ENDPOINT + "?gameId=" + gameId + "&fileDir=" + fileDir;
+        using Stream response = await clientWithCookies.GetStreamAsync(endpoint);
+
+        string fileFolder = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, Path.GetDirectoryName(fileDir));
+        if (!Directory.Exists(fileFolder))
+        {
+            Directory.CreateDirectory(fileFolder);
+        }
+        
+        string absoluteFileDir = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, fileDir);
+        FileStream gameFileStream = new FileStream(absoluteFileDir, FileMode.Create, FileAccess.Write, FileShare.None);
+        await response.CopyToAsync(gameFileStream);
+    }
+
+    public string GetGameDir(string gameName)
+    {
+        string gameDir = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, gameName);
+
+        if (!Directory.Exists(gameDir))
+        {
+            Directory.CreateDirectory(gameDir);
+        }
+
+        return gameDir;
     }
 }
 
