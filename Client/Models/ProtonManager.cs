@@ -29,6 +29,17 @@ public class ProtonManager
         return protonVersions;
     }
 
+    public async Task<bool> CanLaunchGameAsync(Guid gameId)
+    {
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            ProtonSettings settings = await dbContext.ProtonSettings.FindAsync(gameId);
+            
+            bool PROTON_VERSION_SELECTED = settings.ProtonVersion != null;
+            return PROTON_VERSION_SELECTED;
+        }
+    }
+    
     public async Task LaunchGame()
     {
         string gamePath = Path.Combine(Directory.GetCurrentDirectory(), "Games/NNF_FULLVERSION.exe");
