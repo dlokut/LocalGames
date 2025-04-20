@@ -57,7 +57,26 @@ public class ProtonManager
 
         return defaultSettings;
     }
-    
+
+    public async Task<string> CreateEnvVariableStringAsync(Guid gameId)
+    {
+        List<ProtonEnvVariable> envVariables;
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            envVariables = dbContext.ProtonEnvVariables.Where(e => e.GameId == gameId).ToList();
+        }
+
+        if (envVariables.Count == 0)
+        {
+            return "";
+        }
+
+        List<string> envVariablesStrings = envVariables.Select(e => $"{e.Key}={e.Value}").ToList();
+        string joinedVariablesString = string.Join(" ", envVariablesStrings);
+
+        return joinedVariablesString;
+
+    }
     public async Task AddProtonEnvVariableAsync(Guid gameId, string key, string value)
     {
         ProtonEnvVariable protonEnvVariable = new ProtonEnvVariable()
