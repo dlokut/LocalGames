@@ -58,7 +58,7 @@ public class ProtonManager
         return defaultSettings;
     }
 
-    public async Task<string> CreateEnvVariableStringAsync(Guid gameId)
+    private async Task<string> CreateEnvVariableStringAsync(Guid gameId)
     {
         List<ProtonEnvVariable> envVariables;
         using (ClientDbContext dbContext = new ClientDbContext())
@@ -74,6 +74,45 @@ public class ProtonManager
         List<string> envVariablesStrings = envVariables.Select(e => $"{e.Key}={e.Value}").ToList();
         string joinedVariablesString = string.Join(" ", envVariablesStrings);
 
+        return joinedVariablesString;
+
+    }
+
+    public string CreateProtonSettingsEnvVariableString(ProtonSettings settings)
+    {
+        List<string> envVariablesStrings = new List<string>();
+
+        if (settings.ProtonVersion != null)
+        {
+            string absoluteProtonDir =
+                Path.Combine(Directory.GetCurrentDirectory(), PROTON_VERSION_DIR, settings.ProtonVersion);
+            envVariablesStrings.Add($"PROTONPATH={absoluteProtonDir}");
+        }
+        
+        envVariablesStrings.Add($"WINEPREFIX={settings.PrefixDir}");
+
+        int fSyncDisabled = Convert.ToInt16(!settings.FSyncEnabled);
+        envVariablesStrings.Add($"PROTON_NO_FSYNC={fSyncDisabled}");
+        
+        int eSyncDisabled = Convert.ToInt16(!settings.ESyncEnabled);
+        envVariablesStrings.Add($"PROTON_NO_ESYNC={eSyncDisabled}");
+
+        int dxvkEnabled = Convert.ToInt16(settings.DxvkEnabled);
+        envVariablesStrings.Add($"PROTON_USE_DXVK={dxvkEnabled}");
+
+        int dxvkAsync = Convert.ToInt16(settings.DxvkAsync);
+        envVariablesStrings.Add($"DXVK_ASYNC={dxvkAsync}");
+
+        int? UNLIMITED_FRAMERATE = null;
+        if (settings.DxvkFramerate != UNLIMITED_FRAMERATE)
+        {
+            envVariablesStrings.Add($"DXVK_FRAME_RATE={settings.DxvkFramerate}");
+        }
+
+        int nvapiEnabled = Convert.ToInt16(settings.NvapiEnabled);
+        envVariablesStrings.Add($"PROTON_ENABLE_NVAPI={nvapiEnabled}");
+
+        string joinedVariablesString = String.Join(" ", envVariablesStrings);
         return joinedVariablesString;
 
     }

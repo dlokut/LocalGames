@@ -26,7 +26,7 @@ public class ProtonSettings
 
     public bool DxvkAsync { get; set; } = false;
 
-    public bool? DxvkFramerate { get; set; } = null;
+    public int? DxvkFramerate { get; set; } = null;
 
     public bool NvapiEnabled { get; set; } = true;
 
