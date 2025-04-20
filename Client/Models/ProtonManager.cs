@@ -14,6 +14,8 @@ public class ProtonManager
     
     private const string UMU_EXECUTABLE_PATH = "umu-run";
 
+    private const string GAMES_DIR = "Games";
+
     public List<string> GetProtonVersions()
     {
         if (!Directory.Exists(PROTON_VERSION_DIR))
@@ -40,6 +42,22 @@ public class ProtonManager
         
     }
 
+    public ProtonSettings CreateDefaultProtonSettings(DownloadedGame game)
+    {
+        string gameFolderName = game.Name;
+        string absolutePrefixDir = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, gameFolderName, "pfx");
+        string? firstFoundProton = GetProtonVersions().FirstOrDefault();
+
+        ProtonSettings defaultSettings = new ProtonSettings()
+        {
+            GameId = game.Id,
+            ProtonVersion = firstFoundProton,
+            PrefixDir = absolutePrefixDir
+        };
+
+        return defaultSettings;
+    }
+    
     public async Task AddProtonEnvVariableAsync(Guid gameId, string key, string value)
     {
         ProtonEnvVariable protonEnvVariable = new ProtonEnvVariable()

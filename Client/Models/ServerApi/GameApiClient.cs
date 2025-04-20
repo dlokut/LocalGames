@@ -15,6 +15,14 @@ public class GameApiClient
     private const string GAMES_DIR = "Games";
     
     private const string ALL_GAMES_ENDPOINT = "Game/v1/GetAllGames";
+
+    private readonly ProtonManager _protonManager;
+
+    public GameApiClient()
+    {
+        _protonManager = new ProtonManager();
+    }
+    
     public async Task<List<ServerGame>> GetAllGamesOnServer()
     {
         ServerInfoManager serverInfoManager = new ServerInfoManager();
@@ -92,10 +100,13 @@ public class GameApiClient
             gameFile.GameId = downloadedGame.Id;
         }
 
+        ProtonSettings defaultSettings = _protonManager.CreateDefaultProtonSettings(downloadedGame);
+
         using (ClientDbContext dbContext = new ClientDbContext())
         {
             await dbContext.DownloadedGames.AddAsync(downloadedGame);
             await dbContext.GameFiles.AddRangeAsync(gameFiles);
+            await dbContext.ProtonSettings.AddAsync(defaultSettings);
 
             await dbContext.SaveChangesAsync();
         }
@@ -113,7 +124,7 @@ public class GameApiClient
         };
     }
 
-    public async Task UninstallGame(Guid gameId)
+    public async Task UninstallGameAsync(Guid gameId)
     {
         List<GameFile> gameFiles;
         using (ClientDbContext dbContext = new ClientDbContext())
