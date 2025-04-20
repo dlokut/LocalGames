@@ -30,17 +30,17 @@ public class GameApiClient
         return allGamesOnServer;
 
     }
-    public async Task DownloadGameAsync(Guid gameId)
+    public async Task DownloadGameAsync(ServerGame game)
     {
-        List<GameFile> gameFiles = await GetGameFileInfoAsync(gameId);
+        List<GameFile> gameFiles = await GetGameFileInfoAsync(game.Id);
 
         foreach (GameFile gameFile in gameFiles)
         {
-            await DownloadGameFileAsync(gameId, gameFile.Directory);
+            await DownloadGameFileAsync(game.Id, gameFile.Directory);
         }
         
     }
-
+    
     private const string GAME_FILE_INFO_ENDPOINT = "Game/v1/GetGameFilesInfo";
     private async Task<List<GameFile>> GetGameFileInfoAsync(Guid gameId)
     {
@@ -79,7 +79,9 @@ public class GameApiClient
         FileStream gameFileStream = new FileStream(absoluteFileDir, FileMode.Create, FileAccess.Write, FileShare.None);
         await response.CopyToAsync(gameFileStream);
     }
+    
+    //private async Task AddGameToDbAsync()
 
 }
 
-public record ServerGame(Guid id, long fileSize, string name, string summary, string coverUrl);
+public record ServerGame(Guid Id, long FileSize, string Name, string Summary, string CoverUrl);
