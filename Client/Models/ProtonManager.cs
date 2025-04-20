@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls.Primitives;
 using Client.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace Client.Models;
 
@@ -33,8 +35,8 @@ public class ProtonManager
     {
         using (ClientDbContext dbContext = new ClientDbContext())
         {
-            GameFile? mainExecutible = dbContext.GameFiles
-                .FirstOrDefault(gf => (gf.GameId == gameId) && gf.IsMainExecutable);
+            GameFile? mainExecutible = await dbContext.GameFiles
+                .FirstOrDefaultAsync(gf => (gf.GameId == gameId) && gf.IsMainExecutable);
             
             if (mainExecutible == null) return false;
                 
@@ -49,27 +51,91 @@ public class ProtonManager
     
     public async Task LaunchGame(Guid gameId)
     {
-        DownloadedGame gameToRun;
         ProtonSettings protonSettings;
+        GameFile mainExecutable;
 
         using (ClientDbContext dbContext = new ClientDbContext())
         {
-            gameToRun = await dbContext.DownloadedGames.FindAsync(gameId);
             protonSettings = await dbContext.ProtonSettings.FindAsync(gameId);
+            
+            mainExecutable = await dbContext.GameFiles
+                .FirstOrDefaultAsync(gf => (gf.GameId == gameId) && gf.IsMainExecutable);
         }
 
-        string absoluteProtonPath = Path.Combine(Directory.GetCurrentDirectory(), PROTON_VERSION_DIR,
-            protonSettings.ProtonVersion);
-        
-        string gamePath = Path.Combine(Directory.GetCurrentDirectory(), "Games/NNF_FULLVERSION.exe");
-        string prefixPath = Path.Combine(Directory.GetCurrentDirectory(), "Games/pfx");
-        //string protonPath = Path.Combine(Directory.GetCurrentDirectory(), "Proton/GE-Proton9-27");
-        
-        Environment.SetEnvironmentVariable("WINEPREFIX", prefixPath);
-        //Environment.SetEnvironmentVariable("PROTONPATH", protonPath);
+        await SetProtonEnvVariablesAsync(gameId, protonSettings);
+        string commandString = CreateWrapperCommandsString(protonSettings);
 
-        Process process = Process.Start(UMU_EXECUTABLE_PATH, gamePath);
+        commandString += UMU_EXECUTABLE_PATH;
         
+        string absoluteMainExecutablePath =
+            Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, mainExecutable.Directory);
+        commandString += " " + absoluteMainExecutablePath;
+
+        var test = commandString.IndexOf(' ');
+        string firstCommand = commandString.Substring(0, commandString.IndexOf(' '));
+        string commandArguments = commandString.Substring(commandString.IndexOf(' ') + 1);
+
+        Process process = Process.Start(firstCommand, commandArguments);
+        
+    }
+    
+    private async Task SetProtonEnvVariablesAsync(Guid gameId, ProtonSettings protonSettings)
+    {
+        List<ProtonEnvVariable> envVariables;
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            envVariables = dbContext.ProtonEnvVariables.Where(e => e.GameId == gameId).ToList();
+            protonSettings = await dbContext.ProtonSettings.FindAsync(gameId);
+        }
+        
+        
+        foreach (ProtonEnvVariable envVariable in envVariables)
+        {
+            Environment.SetEnvironmentVariable(envVariable.Key, envVariable.Value);
+        }
+        
+        
+        string absoluteProtonDir =
+            Path.Combine(Directory.GetCurrentDirectory(), PROTON_VERSION_DIR, protonSettings.ProtonVersion);
+        Environment.SetEnvironmentVariable("PROTONPATH", absoluteProtonDir);
+        
+        Environment.SetEnvironmentVariable("WINEPREFIX", protonSettings.PrefixDir);
+        
+        int fSyncDisabled = Convert.ToInt16(!protonSettings.FSyncEnabled);
+        Environment.SetEnvironmentVariable("PROTON_NO_FSYNC", fSyncDisabled.ToString());
+        
+        int eSyncDisabled = Convert.ToInt16(!protonSettings.ESyncEnabled);
+        Environment.SetEnvironmentVariable("PROTON_NO_ESYNC", eSyncDisabled.ToString());
+        
+        int dxvkEnabled = Convert.ToInt16(protonSettings.DxvkEnabled);
+        Environment.SetEnvironmentVariable("PROTON_USE_DXVK", dxvkEnabled.ToString());
+        
+        int dxvkAsync = Convert.ToInt16(protonSettings.DxvkAsync);
+        Environment.SetEnvironmentVariable("DXVK_ASYNC", dxvkAsync.ToString());
+        
+        int? UNLIMITED_FRAMERATE = null;
+        if (protonSettings.DxvkFramerate != UNLIMITED_FRAMERATE)
+        {
+            Environment.SetEnvironmentVariable("DXVK_FRAME_RATE", protonSettings.DxvkFramerate.ToString());
+        }
+        
+        int nvapiEnabled = Convert.ToInt16(protonSettings.NvapiEnabled);
+        Environment.SetEnvironmentVariable("PROTON_ENABLE_NVAPI", nvapiEnabled.ToString());
+        
+    }
+    
+    private string CreateWrapperCommandsString(ProtonSettings settings)
+    {
+        List<string> wrapperCommands = new List<string>();
+        
+        if (settings.MangohudEnabled) wrapperCommands.Add("mangohud");
+        if (settings.GamemodeEnabled) wrapperCommands.Add("gamemoderun");
+        
+        string joinedVariablesString = String.Join(" ", wrapperCommands);
+        if (joinedVariablesString != "") joinedVariablesString += " ";
+        
+        return joinedVariablesString;
+
     }
 
     public async Task SetPrimaryExecutible(Guid gameId, string fileDir)
@@ -106,76 +172,8 @@ public class ProtonManager
         return defaultSettings;
     }
 
-    private async Task<string> CreateEnvVariableStringAsync(Guid gameId)
-    {
-        List<ProtonEnvVariable> envVariables;
-        using (ClientDbContext dbContext = new ClientDbContext())
-        {
-            envVariables = dbContext.ProtonEnvVariables.Where(e => e.GameId == gameId).ToList();
-        }
 
-        if (envVariables.Count == 0)
-        {
-            return "";
-        }
-
-        List<string> envVariablesStrings = envVariables.Select(e => $"{e.Key}={e.Value}").ToList();
-        string joinedVariablesString = string.Join(" ", envVariablesStrings);
-
-        return joinedVariablesString;
-
-    }
-
-    public string CreateProtonSettingsEnvVariableString(ProtonSettings settings)
-    {
-        List<string> envVariablesStrings = new List<string>();
-
-        if (settings.ProtonVersion != null)
-        {
-            string absoluteProtonDir =
-                Path.Combine(Directory.GetCurrentDirectory(), PROTON_VERSION_DIR, settings.ProtonVersion);
-            envVariablesStrings.Add($"PROTONPATH={absoluteProtonDir}");
-        }
-        
-        envVariablesStrings.Add($"WINEPREFIX={settings.PrefixDir}");
-
-        int fSyncDisabled = Convert.ToInt16(!settings.FSyncEnabled);
-        envVariablesStrings.Add($"PROTON_NO_FSYNC={fSyncDisabled}");
-        
-        int eSyncDisabled = Convert.ToInt16(!settings.ESyncEnabled);
-        envVariablesStrings.Add($"PROTON_NO_ESYNC={eSyncDisabled}");
-
-        int dxvkEnabled = Convert.ToInt16(settings.DxvkEnabled);
-        envVariablesStrings.Add($"PROTON_USE_DXVK={dxvkEnabled}");
-
-        int dxvkAsync = Convert.ToInt16(settings.DxvkAsync);
-        envVariablesStrings.Add($"DXVK_ASYNC={dxvkAsync}");
-
-        int? UNLIMITED_FRAMERATE = null;
-        if (settings.DxvkFramerate != UNLIMITED_FRAMERATE)
-        {
-            envVariablesStrings.Add($"DXVK_FRAME_RATE={settings.DxvkFramerate}");
-        }
-
-        int nvapiEnabled = Convert.ToInt16(settings.NvapiEnabled);
-        envVariablesStrings.Add($"PROTON_ENABLE_NVAPI={nvapiEnabled}");
-
-        string joinedVariablesString = String.Join(" ", envVariablesStrings);
-        return joinedVariablesString;
-
-    }
-
-    public string CreateWrapperCommandsString(ProtonSettings settings)
-    {
-        List<string> wrapperCommands = new List<string>();
-        
-        if (settings.MangohudEnabled) wrapperCommands.Add("mangohud");
-        if (settings.GamemodeEnabled) wrapperCommands.Add("gamemoderun");
-        
-        string joinedVariablesString = String.Join(" ", wrapperCommands);
-        return joinedVariablesString;
-
-    }
+    
     public async Task AddProtonEnvVariableAsync(Guid gameId, string key, string value)
     {
         ProtonEnvVariable protonEnvVariable = new ProtonEnvVariable()
