@@ -33,10 +33,17 @@ public class ProtonManager
     {
         using (ClientDbContext dbContext = new ClientDbContext())
         {
-            ProtonSettings settings = await dbContext.ProtonSettings.FindAsync(gameId);
+            GameFile? mainExecutible = dbContext.GameFiles
+                .FirstOrDefault(gf => (gf.GameId == gameId) && gf.IsMainExecutable);
             
+            if (mainExecutible == null) return false;
+                
+            
+            ProtonSettings settings = await dbContext.ProtonSettings.FindAsync(gameId);
             bool PROTON_VERSION_SELECTED = settings.ProtonVersion != null;
-            return PROTON_VERSION_SELECTED;
+            if (!PROTON_VERSION_SELECTED) return false;
+
+            return true;
         }
     }
     
