@@ -55,5 +55,17 @@ public class ProtonManager
             await dbContext.SaveChangesAsync();
         }
     }
+
+    public async Task RemoveProtonEnvVariableAsync(Guid gameId, string key)
+    {
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            ProtonEnvVariable envVariableToRemove = await dbContext.ProtonEnvVariables.
+                FindAsync(gameId, key);
+
+            dbContext.Remove(envVariableToRemove);
+            await dbContext.SaveChangesAsync();
+        }
+    }
     
 }
