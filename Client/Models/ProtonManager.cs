@@ -51,11 +51,14 @@ public class ProtonManager
     
     public async Task LaunchGame(Guid gameId)
     {
+        DownloadedGame game;
         ProtonSettings protonSettings;
         GameFile mainExecutable;
 
         using (ClientDbContext dbContext = new ClientDbContext())
         {
+            game = await dbContext.DownloadedGames.FindAsync(gameId);
+            
             protonSettings = await dbContext.ProtonSettings.FindAsync(gameId);
             
             mainExecutable = await dbContext.GameFiles
@@ -69,11 +72,17 @@ public class ProtonManager
         
         string absoluteMainExecutablePath =
             Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, mainExecutable.Directory);
-        commandString += " " + absoluteMainExecutablePath;
+        
+        // Speech marks required in case path has spaces in it
+        //TODO: Add speech marks around env variables, proton path and prefix
+        commandString += " \"" + absoluteMainExecutablePath + "\"";
 
         var test = commandString.IndexOf(' ');
         string firstCommand = commandString.Substring(0, commandString.IndexOf(' '));
         string commandArguments = commandString.Substring(commandString.IndexOf(' ') + 1);
+
+        string gameDir = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, game.Name);
+        //Directory.SetCurrentDirectory(gameDir);
 
         Process process = Process.Start(firstCommand, commandArguments);
         
@@ -98,8 +107,9 @@ public class ProtonManager
         string absoluteProtonDir =
             Path.Combine(Directory.GetCurrentDirectory(), PROTON_VERSION_DIR, protonSettings.ProtonVersion);
         Environment.SetEnvironmentVariable("PROTONPATH", absoluteProtonDir);
-        
-        Environment.SetEnvironmentVariable("WINEPREFIX", protonSettings.PrefixDir);
+
+        string tempPrefixDir = "~/test";
+        //Environment.SetEnvironmentVariable("WINEPREFIX", tempPrefixDir);
         
         int fSyncDisabled = Convert.ToInt16(!protonSettings.FSyncEnabled);
         Environment.SetEnvironmentVariable("PROTON_NO_FSYNC", fSyncDisabled.ToString());
