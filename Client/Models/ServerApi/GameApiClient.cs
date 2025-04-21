@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Client.Database;
+using System.Threading;
 
 namespace Client.Models.ServerApi;
 
@@ -39,6 +40,62 @@ public class GameApiClient
         return allGamesOnServer;
 
     }
+
+    private const string UPLOAD_GAME_ENDPOINT = "Game/v1/PostUploadGame";
+
+    public async Task UploadGameAsync(string gameName, List<string> gameFilesDirs)
+    {
+         ServerInfoManager serverInfoManager = new ServerInfoManager();
+         HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
+         clientWithCookies.Timeout = Timeout.InfiniteTimeSpan;
+
+         MultipartFormDataContent content = GetMultipartFormDataContent(gameFilesDirs);
+
+         string endpoint = UPLOAD_GAME_ENDPOINT + $"?gameName={gameName}";
+         HttpResponseMessage response = await clientWithCookies.PostAsync(endpoint, content);
+         return;
+    }
+
+    private MultipartFormDataContent GetMultipartFormDataContent(List<string> gameFilesDirs)
+    {
+        List<string> filePaths = new List<string>();
+        const string ALL_FILES = "*";
+        foreach (string filesDirs in gameFilesDirs)
+        {
+            // Whether string is a directory
+            if (Directory.Exists(filesDirs))
+            {
+                filePaths.AddRange(Directory.GetFiles(filesDirs, ALL_FILES,
+                    SearchOption.AllDirectories));
+            }
+            
+            else filePaths.Add(filesDirs);
+        }
+
+
+        // First adds num of files, then file dirs as string content, then the actual files (see upload game method in 
+        // server code)
+        MultipartFormDataContent content = new MultipartFormDataContent();
+        
+        int fileCount = filePaths.Count;
+        content.Add(new StringContent(fileCount.ToString()), "itemCount");
+
+
+        foreach (string filePath in filePaths)
+        {
+            content.Add(new StringContent(filePath), filePath);
+        }
+        
+        foreach (string filePath in filePaths)
+        {
+            string fileName = Path.GetFileName(filePath);
+            content.Add(new StreamContent(new FileStream(filePath, FileMode.Open)), filePath, fileName);
+        }
+
+        return content;
+
+    }
+        
     public async Task DownloadGameAsync(ServerGame game)
     {
         List<GameFile> gameFiles = await GetGameFileInfoAsync(game.Id);
@@ -51,6 +108,7 @@ public class GameApiClient
         await AddGameToDbAsync(game, gameFiles);
 
     }
+    
     
     private const string GAME_FILE_INFO_ENDPOINT = "Game/v1/GetGameFilesInfo";
     private async Task<List<GameFile>> GetGameFileInfoAsync(Guid gameId)
