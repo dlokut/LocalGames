@@ -88,7 +88,10 @@ public class GameApiClient
         
         string absoluteFileDir = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, fileDir);
         FileStream gameFileStream = new FileStream(absoluteFileDir, FileMode.Create, FileAccess.Write, FileShare.None);
+
         await response.CopyToAsync(gameFileStream);
+        await gameFileStream.FlushAsync();
+        gameFileStream.Close();
     }
 
     private async Task AddGameToDbAsync(ServerGame game, List<GameFile> gameFiles)
