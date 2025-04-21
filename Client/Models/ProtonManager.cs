@@ -77,15 +77,10 @@ public class ProtonManager
         //TODO: Add speech marks around env variables, proton path and prefix
         commandString += " \"" + absoluteMainExecutablePath + "\"";
 
-        var test = commandString.IndexOf(' ');
         string firstCommand = commandString.Substring(0, commandString.IndexOf(' '));
         string commandArguments = commandString.Substring(commandString.IndexOf(' ') + 1);
 
-        string gameDir = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, game.Name);
-        //Directory.SetCurrentDirectory(gameDir);
-
         Process process = Process.Start(firstCommand, commandArguments);
-        
     }
     
     private async Task SetProtonEnvVariablesAsync(Guid gameId, ProtonSettings protonSettings)
@@ -109,7 +104,7 @@ public class ProtonManager
         Environment.SetEnvironmentVariable("PROTONPATH", absoluteProtonDir);
 
         string tempPrefixDir = "~/test";
-        //Environment.SetEnvironmentVariable("WINEPREFIX", tempPrefixDir);
+        Environment.SetEnvironmentVariable("WINEPREFIX", tempPrefixDir);
         
         int fSyncDisabled = Convert.ToInt16(!protonSettings.FSyncEnabled);
         Environment.SetEnvironmentVariable("PROTON_NO_FSYNC", fSyncDisabled.ToString());
