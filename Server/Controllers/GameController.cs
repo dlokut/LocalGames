@@ -406,8 +406,7 @@ namespace Server.Controllers
                 CreateDirectoriesForFile(fileDirs[fileSection.Name], rootPath);
 
                 string filePath = rootPath + "/" + fileDirs[fileSection.Name];
-                using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None,
-                           1024))
+                using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     await fileSection.FileStream.CopyToAsync(stream);
                 }
