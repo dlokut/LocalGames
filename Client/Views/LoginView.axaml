@@ -37,6 +37,12 @@
                 Text="{Binding Password}"
                 Width="400" />
         
+            <TextBlock
+                FontSize="30"
+                HorizontalAlignment="Center"
+                Text="{Binding ErrorText}"
+                Foreground="Red"
+                ></TextBlock>
             <Button 
                     HorizontalAlignment="Center"
                     Width="400"

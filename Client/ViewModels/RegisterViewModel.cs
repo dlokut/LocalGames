@@ -13,7 +13,7 @@ public partial class RegisterViewModel : ViewModelBase
     
     [ObservableProperty] private string _password;
 
-    [ObservableProperty] private string _errorText = "Error text";
+    [ObservableProperty] private string _errorText;
 
     [RelayCommand]
     public void GoBackToWelcome()
