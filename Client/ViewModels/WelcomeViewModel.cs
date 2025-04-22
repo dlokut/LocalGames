@@ -9,4 +9,10 @@ public partial class WelcomeViewModel : ViewModelBase
     {
         MainWindowViewModel.SwitchViews(new RegisterViewModel());
     }
+
+    [RelayCommand]
+    public void GoToLogin()
+    {
+        MainWindowViewModel.SwitchViews(new LoginViewModel());
+    }
 }

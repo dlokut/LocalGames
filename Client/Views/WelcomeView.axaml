@@ -15,7 +15,7 @@
                     Margin="20"
                     FontSize="40"
                     Width="400"
-                    Command="{Binding GoToRegisterCommand}">
+                    Command="{Binding GoToLoginCommand}">
                 <TextBlock HorizontalAlignment="Center">Login</TextBlock>
             </Button>
             

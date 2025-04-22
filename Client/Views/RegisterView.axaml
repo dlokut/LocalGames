@@ -17,24 +17,36 @@
             <TextBox
                 Margin="0 10 0 20"
                 FontSize="40"
-                Width="400" />
+                Width="400"
+                Text="{Binding ServerAddress}"
+                />
 
             <TextBlock>Username</TextBlock>
             <TextBox
                 Margin="0 10 0 20"
                 FontSize="40"
-                Width="400" />
+                Width="400"
+                Text="{Binding Username}"
+                />
 
             <TextBlock>Password</TextBlock>
             <TextBox
                 Margin="0 10 0 40"
                 FontSize="40"
                 PasswordChar="*"
+                Text="{Binding Password}"
                 Width="400" />
         
+            <TextBlock
+                FontSize="30"
+                HorizontalAlignment="Center"
+                Text="{Binding ErrorText}"
+                Foreground="Red"
+                ></TextBlock>
             <Button 
                     HorizontalAlignment="Center"
                     Width="400"
+                    Command="{Binding RegisterCommand}"
                     >
                 <TextBlock
                     FontSize="40"
