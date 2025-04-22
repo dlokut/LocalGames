@@ -1,0 +1,49 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Client.ViewModels"
+             xmlns:models="using:Client.Models.ServerApi"
+             x:DataType="vm:GameLibraryViewModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Client.Views.GameLibraryView">
+    <SplitView IsPaneOpen="True" OpenPaneLength="300">
+        <SplitView.Pane>
+            <StackPanel Spacing="30">
+                <Button
+                    Margin="0 20 0 0"
+                    CornerRadius="30"
+                    Command="{Binding TestCommand}"
+                    HorizontalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center"
+                               FontSize="35">
+                        + Upload Game
+                    </TextBlock>
+                </Button>
+                <Expander Width="300" Header="Installed" IsExpanded="True">
+                    <ListBox>
+                        <ListBoxItem>Item 1</ListBoxItem>
+                        <ListBoxItem>Item 2</ListBoxItem>
+                        <ListBoxItem>Item 3</ListBoxItem>
+                    </ListBox>
+                </Expander>
+
+                <Expander Width="300" Header="Uninstalled" IsExpanded="True">
+                    <ListBox ItemsSource="{Binding UninstalledGames}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:ServerGame}">
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Expander>
+            </StackPanel>
+
+        </SplitView.Pane>
+        <SplitView.Content>
+            <TransitioningContentControl
+                Content="{Binding SplitViewContentViewModel}" />
+
+        </SplitView.Content>
+    </SplitView>
+</UserControl>
