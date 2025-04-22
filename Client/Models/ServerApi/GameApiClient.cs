@@ -208,6 +208,39 @@ public class GameApiClient
         };
     }
 
+    public async Task DownloadGameSaves(Guid gameId)
+    {
+        ProtonSettings protonSettings;
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            protonSettings = await dbContext.ProtonSettings.FindAsync(gameId);
+        }
+
+        List<string> saveFileDirs = await GetSaveFileInfoAsync(gameId);
+
+
+    }
+
+    private const string SAVE_FILE_INFO_ENDPOINT = "Game/v1/GetSaveFilesInfo";
+    private async Task<List<string>> GetSaveFileInfoAsync(Guid gameId)
+    {
+        ServerInfoManager serverInfoManager = new ServerInfoManager();
+        HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
+        
+        string endpoint = SAVE_FILE_INFO_ENDPOINT + "?gameId=" + gameId;
+        using HttpResponseMessage response = await clientWithCookies.GetAsync(endpoint);
+         
+        string responseContentJson = await response.Content.ReadAsStringAsync();
+                 
+        JsonSerializerOptions jsonOptions = serverInfoManager.sharedJsonOptions;
+        var gameSaves = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(responseContentJson, jsonOptions);
+
+        List<string> gameSaveDirs = gameSaves.Select(gs => gs["directory"]).ToList();
+                 
+        return gameSaveDirs;
+               
+    }
+
     public async Task UninstallGameAsync(Guid gameId)
     {
         List<GameFile> gameFiles;
