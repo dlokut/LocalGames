@@ -27,8 +27,14 @@ public partial class RegisterViewModel : ViewModelBase
         LoginApiClient loginApiClient = new LoginApiClient();
         bool registerSuccess = await loginApiClient.RegisterAsync(ServerAddress, Username, Password);
 
-        if (registerSuccess) ErrorText = "";
-        else ErrorText = "Register error";
+        if (!registerSuccess)
+        {
+            ErrorText = "Register error";
+            return;
+        }
+            
+        ErrorText = "";
+        MainWindowViewModel.SwitchViews(new GameLibraryViewModel());
     }
     
 

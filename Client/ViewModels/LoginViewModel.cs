@@ -27,8 +27,14 @@ public partial class LoginViewModel : ViewModelBase
             LoginApiClient loginApiClient = new LoginApiClient();
             bool loginSuccess = await loginApiClient.LoginAsync(ServerAddress, Username, Password);
 
-            if (loginSuccess) ErrorText = "";
-            else ErrorText = "Login error";
+            if (!loginSuccess)
+            {
+                ErrorText = "Login error";
+                return;
+            }
+            
+            ErrorText = "";
+            MainWindowViewModel.SwitchViews(new GameLibraryViewModel());
         }
 
 }
