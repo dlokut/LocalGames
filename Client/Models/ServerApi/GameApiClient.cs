@@ -131,6 +131,7 @@ public class GameApiClient
 
         await AddGameToDbAsync(game, gameFiles);
 
+        await AfterGameDownloaded(game.Id);
     }
     
     
@@ -209,7 +210,12 @@ public class GameApiClient
         };
     }
 
-    public async Task DownloadGameSaves(Guid gameId)
+    private async Task AfterGameDownloaded(Guid gameId)
+    {
+        await DownloadGameSaves(gameId);
+    }
+    
+    private async Task DownloadGameSaves(Guid gameId)
     {
         ProtonSettings protonSettings;
         using (ClientDbContext dbContext = new ClientDbContext())
@@ -243,7 +249,7 @@ public class GameApiClient
             Directory.CreateDirectory(savePathDir);
         }
         
-        FileStream gameFileStream = new FileStream(savePathDir, FileMode.Create, FileAccess.Write, FileShare.None);
+        FileStream gameFileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None);
 
         await response.CopyToAsync(gameFileStream);
         await gameFileStream.FlushAsync();
@@ -296,6 +302,17 @@ public class GameApiClient
             dbContext.DownloadedGames.Remove(gameToRemove);
             await dbContext.SaveChangesAsync();
         }
+    }
+
+    private const string UPLOAD_PLAYTIME_ENDPOINT = "Game/v1/PostPlaytime";
+    public async Task UploadPlaytimeAsync(Guid gameId, int playtimeMins)
+    {
+        ServerInfoManager serverInfoManager = new ServerInfoManager();
+        HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
+
+        string endpoint = UPLOAD_PLAYTIME_ENDPOINT + $"?gameId={gameId}&playtimeMins={playtimeMins}";
+        await clientWithCookies.PostAsync(endpoint, null);
+
     }
 
 }

@@ -15,8 +15,6 @@ public class ProtonManager
 {
     private const string PROTON_VERSION_DIR = "Proton";
 
-    private const string PROTON_PREFIX_DIR = "FYPPrefixes";
-    
     private const string UMU_EXECUTABLE_PATH = "umu-run";
 
     private const string GAMES_DIR = "Games";
@@ -86,11 +84,18 @@ public class ProtonManager
 
     private async Task AfterGameEnds(Process gameProcess, Guid gameId)
     {
+        DateTime gameStartTime = gameProcess.StartTime;
+        
         await gameProcess.WaitForExitAsync();
 
+        DateTime gameEndTime = gameProcess.ExitTime;
+        int minutesPlayed = (gameEndTime - gameStartTime).Minutes;
+        
         GameApiClient gameApiClient = new GameApiClient();
+        await gameApiClient.UploadPlaytimeAsync(gameId, minutesPlayed);
         await gameApiClient.UploadGameSavesAsync(gameId);
     }
+
     private async Task SetProtonEnvVariablesAsync(Guid gameId, ProtonSettings protonSettings)
     {
         List<ProtonEnvVariable> envVariables;
@@ -172,8 +177,7 @@ public class ProtonManager
     public ProtonSettings CreateDefaultProtonSettings(DownloadedGame game)
     {
         string gameFolderName = game.Name;
-        string absolutePrefixDir = Path.Combine(Environment.GetEnvironmentVariable("HOME"), PROTON_PREFIX_DIR,
-            gameFolderName);
+        string absolutePrefixDir = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, gameFolderName, "pfx");
         string? firstFoundProton = GetProtonVersions().FirstOrDefault();
 
         ProtonSettings defaultSettings = new ProtonSettings()
