@@ -15,6 +15,20 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <!-- 
+    <StackPanel>
+        <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <Button
+            Content="Button 1"
+            Command="{Binding ButtonClickedCommand}"/>
+        
+        <Button
+            Content="Button 2"
+            Command="{Binding SecondButtonClickedCommand}"/>
+    </StackPanel>
+    -->
+    
+    <TransitioningContentControl
+        Content="{Binding CurrentViewModel}"/>
 
 </Window>
