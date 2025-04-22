@@ -92,7 +92,17 @@ public class GameManager
 
         using (ServerDbContext dbContext = await _dbContextFactory.CreateDbContextAsync())
         {
-            await dbContext.GameSaves.AddRangeAsync(gameSaves);
+            foreach (GameSave gameSave in gameSaves)
+            {
+                GameSave? existingSave = await dbContext.GameSaves.FindAsync(userId, gameId,
+                    gameSave.Directory);
+
+                if (existingSave == null)
+                {
+                    await dbContext.GameSaves.AddAsync(gameSave);
+                }
+            }
+            
             await dbContext.SaveChangesAsync();
         }
     }
