@@ -7,6 +7,25 @@
              x:DataType="vm:WelcomeViewModel"
              x:Class="Client.Views.WelcomeView">
     
-    <Button Content="Switch"
-            Command="{Binding GoToRegisterCommand}"></Button>
+    <DockPanel Margin="10" HorizontalAlignment="Center" >
+        <TextBlock DockPanel.Dock="Top" Margin="0 0 0 50" FontSize="60" HorizontalAlignment="Center">Welcome!</TextBlock>
+        
+        <StackPanel HorizontalAlignment="Center">
+            <Button 
+                    Margin="20"
+                    FontSize="40"
+                    Width="400"
+                    Command="{Binding GoToRegisterCommand}">
+                <TextBlock HorizontalAlignment="Center">Login</TextBlock>
+            </Button>
+            
+            <Button 
+                    Margin="20"
+                    FontSize="40"
+                    Width="400"
+                    Command="{Binding GoToRegisterCommand}">
+                <TextBlock HorizontalAlignment="Center">Register</TextBlock>
+            </Button>
+        </StackPanel>
+    </DockPanel>
 </UserControl>
