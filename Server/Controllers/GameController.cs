@@ -57,6 +57,37 @@ namespace Server.Controllers
             return Ok(gameFiles);
         }
 
+        [HttpGet]
+        [Route("v1/GetSaveFilesInfo")]
+        public async Task<IActionResult> GetSaveFilesInfoAsync(Guid gameId)
+        {
+            User? currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            if (currentUser == null)
+            {
+                return BadRequest("Must be signed in to upload playtimes");
+            }
+            
+            if (!await GameIdInDbAsync(gameId))
+            {
+                return BadRequest("Unknown game id");
+            }
+
+            List<GameSave> gameSaves = _dbContext.GameSaves
+                .Where(gs => (gs.UserId == currentUser.Id) && (gs.GameId == gameId)).ToList();
+            
+            // Removing references to other objects to avoid issues with json serializer
+            foreach (GameSave gameSave in gameSaves)
+            {
+                gameSave.UserId = null;
+                gameSave.User = null;
+                
+                gameSave.GameId = Guid.Empty;
+                gameSave.Game = null;
+            }
+            
+            return Ok(gameSaves);
+        }
+
         [HttpPost]
         [Route("v1/PostDeleteGame")]
         public async Task<IActionResult> PostDeleteGameAsync(Guid gameId)
