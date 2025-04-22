@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Security.AccessControl;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -218,7 +219,35 @@ public class GameApiClient
 
         List<string> saveFileDirs = await GetSaveFileInfoAsync(gameId);
 
+        foreach (string saveFileDir in saveFileDirs)
+        {
+            await DownloadGameSave(gameId, saveFileDir);
+        }
 
+    }
+
+    private const string SAVE_FILE_DOWNLOAD_ENDPOINT = "Game/v1/GetSaveFile";
+    private async Task DownloadGameSave(Guid gameId, string saveDir)
+    {
+        ServerInfoManager serverInfoManager = new ServerInfoManager();
+        HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
+
+        string endpoint = SAVE_FILE_DOWNLOAD_ENDPOINT + "?gameId=" + gameId + "&saveFileDir=" + saveDir;
+        using Stream response = await clientWithCookies.GetStreamAsync(endpoint);
+
+        // Need to remove game name at start of path
+        string savePath = saveDir.Substring(saveDir.IndexOf('/'));
+        string savePathDir = Path.GetDirectoryName(savePath);
+        if (!Directory.Exists(savePathDir))
+        {
+            Directory.CreateDirectory(savePathDir);
+        }
+        
+        FileStream gameFileStream = new FileStream(savePathDir, FileMode.Create, FileAccess.Write, FileShare.None);
+
+        await response.CopyToAsync(gameFileStream);
+        await gameFileStream.FlushAsync();
+        gameFileStream.Close();
     }
 
     private const string SAVE_FILE_INFO_ENDPOINT = "Game/v1/GetSaveFilesInfo";
