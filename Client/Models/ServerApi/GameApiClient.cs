@@ -18,10 +18,14 @@ public class GameApiClient
     private const string ALL_GAMES_ENDPOINT = "Game/v1/GetAllGames";
 
     private readonly ProtonManager _protonManager;
+    
+    private readonly SaveFileManager _saveFileManager;
 
     public GameApiClient()
     {
         _protonManager = new ProtonManager();
+        _saveFileManager = new SaveFileManager();
+
     }
     
     public async Task<List<ServerGame>> GetAllGamesOnServer()
@@ -53,7 +57,26 @@ public class GameApiClient
 
          string endpoint = UPLOAD_GAME_ENDPOINT + $"?gameName={gameName}";
          HttpResponseMessage response = await clientWithCookies.PostAsync(endpoint, content);
-         return;
+    }
+
+    private const string UPLOAD_GAME_SAVES_ENDPOINT = "Game/v1/PostUploadSaveFiles";
+    public async Task UploadGameSavesAsync(Guid gameId)
+    {
+        ProtonSettings settings;
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            settings = await dbContext.ProtonSettings.FindAsync(gameId);
+        }
+        List<string> gameSaves = _saveFileManager.FindSaveFiles(settings.PrefixDir);
+
+        MultipartFormDataContent content = GetMultipartFormDataContent(gameSaves);
+        
+        ServerInfoManager serverInfoManager = new ServerInfoManager();
+        HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
+        clientWithCookies.Timeout = Timeout.InfiniteTimeSpan;
+        
+        string endpoint = UPLOAD_GAME_SAVES_ENDPOINT + $"?gameId={gameId}";
+        HttpResponseMessage response = await clientWithCookies.PostAsync(endpoint, content);
     }
 
     private MultipartFormDataContent GetMultipartFormDataContent(List<string> gameFilesDirs)
