@@ -13,6 +13,8 @@ namespace Client.Models;
 public class ProtonManager
 {
     private const string PROTON_VERSION_DIR = "Proton";
+
+    private const string PROTON_PREFIX_DIR = "FYPPrefixes";
     
     private const string UMU_EXECUTABLE_PATH = "umu-run";
 
@@ -51,14 +53,11 @@ public class ProtonManager
     
     public async Task LaunchGame(Guid gameId)
     {
-        DownloadedGame game;
         ProtonSettings protonSettings;
         GameFile mainExecutable;
 
         using (ClientDbContext dbContext = new ClientDbContext())
         {
-            game = await dbContext.DownloadedGames.FindAsync(gameId);
-            
             protonSettings = await dbContext.ProtonSettings.FindAsync(gameId);
             
             mainExecutable = await dbContext.GameFiles
@@ -164,7 +163,8 @@ public class ProtonManager
     public ProtonSettings CreateDefaultProtonSettings(DownloadedGame game)
     {
         string gameFolderName = game.Name;
-        string absolutePrefixDir = Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, gameFolderName, "pfx");
+        string absolutePrefixDir = Path.Combine(Environment.GetEnvironmentVariable("HOME"), PROTON_PREFIX_DIR,
+            gameFolderName);
         string? firstFoundProton = GetProtonVersions().FirstOrDefault();
 
         ProtonSettings defaultSettings = new ProtonSettings()
