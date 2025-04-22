@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls.Primitives;
 using Client.Database;
+using Client.Models.ServerApi;
 using Microsoft.EntityFrameworkCore;
 
 namespace Client.Models;
@@ -73,15 +74,23 @@ public class ProtonManager
             Path.Combine(Directory.GetCurrentDirectory(), GAMES_DIR, mainExecutable.Directory);
         
         // Speech marks required in case path has spaces in it
-        //TODO: Add speech marks around env variables, proton path and prefix
         commandString += " \"" + absoluteMainExecutablePath + "\"";
 
         string firstCommand = commandString.Substring(0, commandString.IndexOf(' '));
         string commandArguments = commandString.Substring(commandString.IndexOf(' ') + 1);
 
         Process process = Process.Start(firstCommand, commandArguments);
+
+        await AfterGameEnds(process, gameId);
     }
-    
+
+    private async Task AfterGameEnds(Process gameProcess, Guid gameId)
+    {
+        await gameProcess.WaitForExitAsync();
+
+        GameApiClient gameApiClient = new GameApiClient();
+        await gameApiClient.UploadGameSavesAsync(gameId);
+    }
     private async Task SetProtonEnvVariablesAsync(Guid gameId, ProtonSettings protonSettings)
     {
         List<ProtonEnvVariable> envVariables;
@@ -102,8 +111,8 @@ public class ProtonManager
             Path.Combine(Directory.GetCurrentDirectory(), PROTON_VERSION_DIR, protonSettings.ProtonVersion);
         Environment.SetEnvironmentVariable("PROTONPATH", absoluteProtonDir);
 
-        string tempPrefixDir = "~/test";
-        Environment.SetEnvironmentVariable("WINEPREFIX", tempPrefixDir);
+        if (!Directory.Exists(protonSettings.PrefixDir)) Directory.CreateDirectory(protonSettings.PrefixDir);
+        Environment.SetEnvironmentVariable("WINEPREFIX", protonSettings.PrefixDir);
         
         int fSyncDisabled = Convert.ToInt16(!protonSettings.FSyncEnabled);
         Environment.SetEnvironmentVariable("PROTON_NO_FSYNC", fSyncDisabled.ToString());
