@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Client.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:LoginViewModel"
+             x:Class="Client.Views.LoginView">
+    <DockPanel>
+        <Button DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="0 50 0 0"
+                Command="{Binding GoBackToWelcomeCommand}"
+                >
+            <Image Source="/Assets/Icons/arrow-back-up.png" MaxWidth="50" MaxHeight="50"></Image>
+        </Button>
+        <StackPanel HorizontalAlignment="Center" Margin="0 50">
+            <TextBlock>Server address</TextBlock>
+            <TextBox
+                Margin="0 10 0 20"
+                FontSize="40"
+                Width="400"
+                Text="{Binding ServerAddress}"
+                />
+
+            <TextBlock>Username</TextBlock>
+            <TextBox
+                Margin="0 10 0 20"
+                FontSize="40"
+                Width="400"
+                Text="{Binding Username}"
+                />
+
+            <TextBlock>Password</TextBlock>
+            <TextBox
+                Margin="0 10 0 40"
+                FontSize="40"
+                PasswordChar="*"
+                Text="{Binding Password}"
+                Width="400" />
+        
+            <Button 
+                    HorizontalAlignment="Center"
+                    Width="400"
+                    Command="{Binding LoginCommand}"
+                    >
+                <TextBlock
+                    FontSize="40"
+                    HorizontalAlignment="Center"
+                    >Login</TextBlock>
+            </Button>
+        </StackPanel>
+        
+    </DockPanel>
+
+</UserControl>
