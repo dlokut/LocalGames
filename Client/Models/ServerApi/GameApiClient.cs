@@ -42,7 +42,7 @@ public class GameApiClient
         JsonSerializerOptions jsonOptions = serverInfoManager.sharedJsonOptions;
         List<ServerGame> allGamesOnServer = JsonSerializer.Deserialize<List<ServerGame>>(responseContentJson,
             jsonOptions);
-        
+
         return allGamesOnServer;
 
     }
@@ -322,6 +322,23 @@ public class GameApiClient
         string endpoint = UPLOAD_PLAYTIME_ENDPOINT + $"?gameId={gameId}&playtimeMins={playtimeMins}";
         await clientWithCookies.PostAsync(endpoint, null);
 
+    }
+
+    private const string GET_PLAYTIME_ENDPOINT = "Game/v1/GetPlaytime";
+
+    public async Task<int> GetPlaytimeAsync(Guid gameId)
+    {
+         ServerInfoManager serverInfoManager = new ServerInfoManager();
+         HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
+ 
+         string endpoint = GET_PLAYTIME_ENDPOINT + $"?gameId={gameId}";
+         HttpResponseMessage response = await clientWithCookies.GetAsync(endpoint);
+
+         JsonSerializerOptions jsonOptions = serverInfoManager.sharedJsonOptions;
+         string responseJson = await response.Content.ReadAsStringAsync();
+         int playtimeMins = JsonSerializer.Deserialize<int>(responseJson, jsonOptions);
+
+         return playtimeMins;
     }
 
 }

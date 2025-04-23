@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Client.Database;
 using Client.Models.ServerApi;
@@ -12,33 +13,70 @@ namespace Client.ViewModels;
 
 public partial class GameLibraryViewModel : ViewModelBase
 {
+    private Dictionary<Guid, int> playtimesById = new Dictionary<Guid, int>();
+    
     [ObservableProperty] private ViewModelBase _splitViewContentViewModel;
 
     [ObservableProperty] private List<ServerGame> _uninstalledGames;
     
     [ObservableProperty] private List<DownloadedGame> _installedGames;
 
+    [ObservableProperty] private DownloadedGame? _selectedDownloadedGame;
+    
+    [ObservableProperty] private ServerGame? _selectedUninstalledGame;
+
     public GameLibraryViewModel()
     {
+        Thread.Sleep(2000);
         _ = PopulateGamesAsync();
+        /*
+        SplitViewContentViewModel = new GameLibraryContentViewModel("test", "test2",
+            "https://media.npr.org/assets/img/2022/10/20/gettyimages-113243874_custom-3024be1adbcaedb6e18a18ca46c8dadc58ce28a0.jpg?s=1100&c=50&f=jpeg")
+        {
+            MainWindowViewModel = this.MainWindowViewModel
+        };
+        */
+
     }
 
     [RelayCommand]
     private async Task Test()
     {
-        await PopulateInstalledGames();
-    }
-    
-    private async Task PopulateUninstalledGames()
-    {
         GameApiClient gameApiClient = new GameApiClient();
-        UninstalledGames = await gameApiClient.GetAllGamesOnServer();
+        var games = await gameApiClient.GetAllGamesOnServer();
+        await PopulateGamesAsync();
+        //await gameApiClient.UninstallGameAsync(games.First().Id);
+        //await gameApiClient.DownloadGameAsync(games.First());
+        //await PopulateGamesAsync();
+
+        //int playtimeMins = await _gameApiClient.GetPlaytimeAsync(games.First().Id);
+        /*
+        List<string> artworks =
+        [
+            "https://media.npr.org/assets/img/2022/10/20/gettyimages-113243874_custom-3024be1adbcaedb6e18a18ca46c8dadc58ce28a0.jpg?s=1100&c=50&f=jpeg",
+            "https://media.npr.org/assets/img/2022/10/20/gettyimages-113243874_custom-3024be1adbcaedb6e18a18ca46c8dadc58ce28a0.jpg?s=1100&c=50&f=jpeg"
+        ];
+
+        SplitViewContentViewModel = new GameLibraryContentViewModel(InstalledGames.First().Id, "test1", "test2",
+            "https://media.npr.org/assets/img/2022/10/20/gettyimages-113243874_custom-3024be1adbcaedb6e18a18ca46c8dadc58ce28a0.jpg?s=1100&c=50&f=jpeg",
+            artworks);
+            */
     }
 
-    private async Task PopulateInstalledGames()
+    partial void OnSelectedDownloadedGameChanged(DownloadedGame? value)
     {
-        GameApiClient gameApiClient = new GameApiClient();
-        InstalledGames = await gameApiClient.GetAllDownloadedGames();
+        if (value == null) return;
+
+
+        SplitViewContentViewModel = new GameLibraryContentViewModel(value.Id, value.Name, value.Summary, value.CoverUrl, 120);
+    }
+    
+    partial void OnSelectedUninstalledGameChanged(ServerGame? value)
+    {
+        if (value == null) return;
+
+       SplitViewContentViewModel = new GameLibraryContentViewModel(value.Id, value.Name, value.Summary, value.CoverUrl,
+           0);
     }
 
     private async Task PopulateGamesAsync()
@@ -58,5 +96,19 @@ public partial class GameLibraryViewModel : ViewModelBase
         }
 
         UninstalledGames = uninstalledGames;
+
+        List<Guid> uninstalledGamesIds = UninstalledGames.Select(ug => ug.Id).ToList();
+        List<Guid> allGamesIds = installedGamesIds.Concat(uninstalledGamesIds).ToList();
+        await GetPlaytimesAsync(allGamesIds);
+    }
+
+    private async Task GetPlaytimesAsync(List<Guid> gameIds)
+    {
+        GameApiClient gameApiClient = new GameApiClient();
+        foreach (Guid gameId in gameIds)
+        {
+            int playtimeMins = await gameApiClient.GetPlaytimeAsync(gameId);
+            playtimesById[gameId] = playtimeMins;
+        }
     }
 }
