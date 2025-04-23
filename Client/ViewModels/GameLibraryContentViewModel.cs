@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Client.Database;
 using Client.Models;
+using Client.Models.ServerApi;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -47,6 +48,13 @@ public partial class GameLibraryContentViewModel : ViewModelBase
     {
         ProtonManager protonManager = new ProtonManager();
         await protonManager.LaunchGame(_gameId);
+    }
+
+    [RelayCommand]
+    private async Task UninstallGame()
+    {
+        GameApiClient gameApiClient = new GameApiClient();
+        await gameApiClient.UninstallGameAsync(_gameId);
     }
 
     private async Task LoadCover(string url)

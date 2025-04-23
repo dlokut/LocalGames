@@ -24,7 +24,8 @@
                         Command="{Binding PlayGameCommand}">
                     <TextBlock HorizontalAlignment="Center">Play</TextBlock>
                 </Button>
-                <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575">
+                <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575"
+                        Command="{Binding UninstallGameCommand}">
                     <TextBlock HorizontalAlignment="Center">Uninstall</TextBlock>
                 </Button>
                 <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575">
