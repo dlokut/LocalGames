@@ -17,6 +17,8 @@ public partial class GameLibraryContentViewModel : ViewModelBase
 {
     private readonly Guid _gameId;
 
+    private readonly GameLibraryViewModel _splitViewPaneModel;
+
     [ObservableProperty] private string _fillerText =
         "Game summary | Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim  veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea  commodo consequat. Duis aute irure dolor in reprehenderit in voluptate  velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint  occaecat cupidatat non proident, sunt in culpa qui officia deserunt  mollit anim id est laborum";
 
@@ -31,9 +33,10 @@ public partial class GameLibraryContentViewModel : ViewModelBase
     [ObservableProperty] private List<Bitmap> _artworksBitmaps = new List<Bitmap>();
 
     public GameLibraryContentViewModel(Guid gameId, string gameName, string gameSummary, string coverUrl,
-        int playtimeMins)
+        int playtimeMins, GameLibraryViewModel splitViewPaneModel)
     {
         _gameId = gameId;
+        _splitViewPaneModel = splitViewPaneModel;
         
         GameName = gameName;
         GameSummary = gameSummary;
@@ -55,6 +58,8 @@ public partial class GameLibraryContentViewModel : ViewModelBase
     {
         GameApiClient gameApiClient = new GameApiClient();
         await gameApiClient.UninstallGameAsync(_gameId);
+
+        await _splitViewPaneModel.PopulateGamesAsync();
     }
 
     private async Task LoadCover(string url)
