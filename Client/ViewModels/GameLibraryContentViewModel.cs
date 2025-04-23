@@ -1,3 +1,7 @@
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Client.ViewModels;
@@ -11,9 +15,26 @@ public partial class GameLibraryContentViewModel : ViewModelBase
 
     [ObservableProperty] private string _gameSummary;
 
-    public GameLibraryContentViewModel(string gameName, string gameSummary)
+    [ObservableProperty] private Bitmap _coverBitmap;
+
+    public GameLibraryContentViewModel(string gameName, string gameSummary, string coverUrl)
     {
         GameName = gameName;
         GameSummary = gameSummary;
+
+        _ = LoadCover(coverUrl);
+    }
+
+    private async Task LoadCover(string url)
+    {
+        CoverBitmap = await LoadBitmapFromUrl(url);
+    }
+
+    private async Task<Bitmap> LoadBitmapFromUrl(string url)
+    {
+        using HttpClient httpClient = new HttpClient();
+        byte[] imageBytes = await httpClient.GetByteArrayAsync(url);
+
+        return new Bitmap(new MemoryStream(imageBytes));
     }
 }
