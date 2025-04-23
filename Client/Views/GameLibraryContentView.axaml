@@ -6,27 +6,47 @@
              x:DataType="vm:GameLibraryContentViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Client.Views.GameLibraryContentView">
-    <StackPanel Margin="20">
-        <StackPanel Orientation="Horizontal">
-            <Image MaxWidth="300" MaxHeight="400" HorizontalAlignment="Left" 
-                   Source="{Binding CoverBitmap}"/>
-            <StackPanel Margin="20 0">
-                <TextBlock FontSize="60" Text="{Binding GameName}"  />
-                <TextBlock FontSize="20" TextWrapping="Wrap" Text="{Binding GameSummary}" 
-                           MaxWidth="600" Height="400" HorizontalAlignment="Left"/>
+    <ScrollViewer>
+        <StackPanel Margin="20">
+            <StackPanel Orientation="Horizontal">
+                <Image MaxWidth="300" MaxHeight="400" HorizontalAlignment="Left"
+                       Source="{Binding CoverBitmap}" />
+                <StackPanel Margin="20 0">
+                    <TextBlock FontSize="60" Text="{Binding GameName}" />
+                    <TextBlock FontSize="15" Text="{Binding Playtime}"></TextBlock>
+                    <TextBlock FontSize="20" TextWrapping="Wrap" Text="{Binding GameSummary}"
+                               MaxWidth="600" Height="400" HorizontalAlignment="Left" />
+                </StackPanel>
             </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="20">
+                <Button CornerRadius="20" FontSize="30" Width="200" 
+                        Command="{Binding PlayGameCommand}">
+                    <TextBlock HorizontalAlignment="Center">Play</TextBlock>
+                </Button>
+                <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575">
+                    <TextBlock HorizontalAlignment="Center">Uninstall</TextBlock>
+                </Button>
+                <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575">
+                    <TextBlock HorizontalAlignment="Center">Settings</TextBlock>
+                </Button>
+            </StackPanel>
+
+            <ScrollViewer>
+                
+            <ItemsControl ItemsSource="{Binding ArtworksBitmaps}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="4"></UniformGrid>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Image Source="{Binding}"></Image>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            </ScrollViewer>
         </StackPanel>
-        
-        <StackPanel Orientation="Horizontal" Spacing="20">
-            <Button CornerRadius="20" FontSize="30" Width="200">
-                <TextBlock HorizontalAlignment="Center">Play</TextBlock>
-            </Button>
-            <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575">
-                <TextBlock HorizontalAlignment="Center">Uninstall</TextBlock>
-            </Button>
-            <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575">
-                <TextBlock HorizontalAlignment="Center">Settings</TextBlock>
-            </Button>
-        </StackPanel>
-    </StackPanel>
+    </ScrollViewer>
 </UserControl>
