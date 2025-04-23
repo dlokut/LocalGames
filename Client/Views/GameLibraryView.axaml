@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:Client.ViewModels"
              xmlns:models="using:Client.Models.ServerApi"
+             xmlns:database-models="using:Client.Database"
              x:DataType="vm:GameLibraryViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Client.Views.GameLibraryView">
@@ -21,10 +22,12 @@
                     </TextBlock>
                 </Button>
                 <Expander Width="300" Header="Installed" IsExpanded="True">
-                    <ListBox>
-                        <ListBoxItem>Item 1</ListBoxItem>
-                        <ListBoxItem>Item 2</ListBoxItem>
-                        <ListBoxItem>Item 3</ListBoxItem>
+                    <ListBox ItemsSource="{Binding InstalledGames}" >
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type database-models:DownloadedGame}">
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
                     </ListBox>
                 </Expander>
 

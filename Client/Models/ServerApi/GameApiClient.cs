@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Client.Database;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
 
 namespace Client.Models.ServerApi;
 
@@ -44,6 +45,14 @@ public class GameApiClient
         
         return allGamesOnServer;
 
+    }
+
+    public async Task<List<DownloadedGame>> GetAllDownloadedGames()
+    {
+        using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            return await dbContext.DownloadedGames.ToListAsync();
+        }
     }
 
     private const string UPLOAD_GAME_ENDPOINT = "Game/v1/PostUploadGame";
