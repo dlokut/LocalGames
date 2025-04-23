@@ -8,6 +8,7 @@ using Avalonia.Media.Imaging;
 using Client.Database;
 using Client.Models;
 using Client.Models.ServerApi;
+using Client.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -30,20 +31,53 @@ public partial class GameLibraryContentViewModel : ViewModelBase
 
     [ObservableProperty] private string _playtime;
 
+    [ObservableProperty] private bool _playButtonVisible;
+    
+    [ObservableProperty] private bool _settingsButtonVisible;
+    
+    [ObservableProperty] private bool _uninstallButtonVisible;
+    
+    [ObservableProperty] private bool _installButtonVisible;
+
     [ObservableProperty] private List<Bitmap> _artworksBitmaps = new List<Bitmap>();
 
-    public GameLibraryContentViewModel(Guid gameId, string gameName, string gameSummary, string coverUrl,
-        int playtimeMins, GameLibraryViewModel splitViewPaneModel)
+    public GameLibraryContentViewModel(DownloadedGame downloadedGame, int playtimeMins,
+        GameLibraryViewModel splitViewPaneModel)
     {
-        _gameId = gameId;
+        _gameId = downloadedGame.Id;
         _splitViewPaneModel = splitViewPaneModel;
         
-        GameName = gameName;
-        GameSummary = gameSummary;
+        GameName = downloadedGame.Name;
+        GameSummary = downloadedGame.Summary;
         SetPlaytime(playtimeMins);
 
-        _ = LoadCover(coverUrl);
+
+        PlayButtonVisible = true;
+        SettingsButtonVisible = true;
+        UninstallButtonVisible = true;
+        InstallButtonVisible = false;
+        
+        _ = LoadCover(downloadedGame.CoverUrl);
         //_ = LoadArtworks(artworkUrls);
+        
+    }
+
+    public GameLibraryContentViewModel(ServerGame serverGame, int playtimeMins, GameLibraryViewModel splitViewPaneModel)
+    {
+        _gameId = serverGame.Id;
+        _splitViewPaneModel = splitViewPaneModel;
+
+        GameName = serverGame.Name;
+        _gameSummary = serverGame.Summary;
+        SetPlaytime(playtimeMins);
+
+        _ = LoadCover(serverGame.CoverUrl);
+
+        PlayButtonVisible = false;
+        SettingsButtonVisible = false;
+        UninstallButtonVisible = false;
+        InstallButtonVisible = true;
+
     }
 
     [RelayCommand]

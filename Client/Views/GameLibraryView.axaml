@@ -8,7 +8,7 @@
              x:DataType="vm:GameLibraryViewModel"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Client.Views.GameLibraryView">
-    <SplitView IsPaneOpen="True" OpenPaneLength="300">
+    <SplitView IsPaneOpen="True" OpenPaneLength="300" DisplayMode="CompactInline">
         <SplitView.Pane>
             <StackPanel Spacing="30">
                 <Button
@@ -22,7 +22,8 @@
                     </TextBlock>
                 </Button>
                 <Expander Width="300" Header="Installed" IsExpanded="True">
-                    <ListBox ItemsSource="{Binding InstalledGames}" >
+                    <ListBox ItemsSource="{Binding InstalledGames}"
+                             SelectedItem="{Binding SelectedDownloadedGame}">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type database-models:DownloadedGame}">
                                 <TextBlock Text="{Binding Name}" />
@@ -32,7 +33,8 @@
                 </Expander>
 
                 <Expander Width="300" Header="Uninstalled" IsExpanded="True">
-                    <ListBox ItemsSource="{Binding UninstalledGames}">
+                    <ListBox ItemsSource="{Binding UninstalledGames}" 
+                             SelectedItem="{Binding SelectedUninstalledGame}">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:ServerGame}">
                                 <TextBlock Text="{Binding Name}" />
@@ -40,6 +42,7 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </Expander>
+                <DataGrid Margin="0 10 0 0" />
             </StackPanel>
 
         </SplitView.Pane>

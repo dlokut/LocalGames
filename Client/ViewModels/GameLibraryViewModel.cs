@@ -15,9 +15,9 @@ public partial class GameLibraryViewModel : ViewModelBase
 {
     private Dictionary<Guid, int> playtimesById = new Dictionary<Guid, int>();
     
-    [ObservableProperty] private ViewModelBase _splitViewContentViewModel;
+    [ObservableProperty] private GameLibraryContentViewModel _splitViewContentViewModel;
 
-    [ObservableProperty] private List<ServerGame> _uninstalledGames;
+    [ObservableProperty] private List<ServerGame> _uninstalledGames = new List<ServerGame>();
     
     [ObservableProperty] private List<DownloadedGame> _installedGames;
 
@@ -27,7 +27,7 @@ public partial class GameLibraryViewModel : ViewModelBase
 
     public GameLibraryViewModel()
     {
-        Thread.Sleep(2000);
+        Thread.Sleep(4000);
         _ = PopulateGamesAsync();
         /*
         SplitViewContentViewModel = new GameLibraryContentViewModel("test", "test2",
@@ -44,11 +44,12 @@ public partial class GameLibraryViewModel : ViewModelBase
     {
         GameApiClient gameApiClient = new GameApiClient();
         var games = await gameApiClient.GetAllGamesOnServer();
+        await gameApiClient.DownloadGameAsync(games.First());
         await PopulateGamesAsync();
         //await gameApiClient.UninstallGameAsync(games.First().Id);
-        //await gameApiClient.DownloadGameAsync(games.First());
         //await PopulateGamesAsync();
 
+        //SetContentViewToEmpty();
         //int playtimeMins = await _gameApiClient.GetPlaytimeAsync(games.First().Id);
         /*
         List<string> artworks =
@@ -68,30 +69,30 @@ public partial class GameLibraryViewModel : ViewModelBase
         if (value == null) return;
 
 
-        SplitViewContentViewModel = new GameLibraryContentViewModel(value.Id, value.Name, value.Summary, value.CoverUrl, 120);
+        SplitViewContentViewModel = new GameLibraryContentViewModel(value, playtimesById[value.Id], this);
     }
     
     partial void OnSelectedUninstalledGameChanged(ServerGame? value)
     {
         if (value == null) return;
 
-       SplitViewContentViewModel = new GameLibraryContentViewModel(value.Id, value.Name, value.Summary, value.CoverUrl,
-           0);
+       SplitViewContentViewModel = new GameLibraryContentViewModel(value, playtimesById[value.Id], this);
     }
 
-    private async Task PopulateGamesAsync()
+    public async Task PopulateGamesAsync()
     {
         GameApiClient gameApiClient = new GameApiClient();
         InstalledGames = await gameApiClient.GetAllDownloadedGames();
         
-        List<ServerGame> uninstalledGames = await gameApiClient.GetAllGamesOnServer();
+        List<ServerGame> gamesOnServer = await gameApiClient.GetAllGamesOnServer();
+        List<ServerGame> uninstalledGames = new List<ServerGame>();
 
         List<Guid> installedGamesIds = InstalledGames.Select(ig => ig.Id).ToList();
-        foreach (ServerGame uninstalledGame in uninstalledGames)
+        foreach (ServerGame uninstalledGame in gamesOnServer)
         {
-            if (installedGamesIds.Contains(uninstalledGame.Id))
+            if (!installedGamesIds.Contains(uninstalledGame.Id))
             {
-                uninstalledGames.Remove(uninstalledGame);
+                uninstalledGames.Add(uninstalledGame);
             }
         }
 
@@ -110,5 +111,13 @@ public partial class GameLibraryViewModel : ViewModelBase
             int playtimeMins = await gameApiClient.GetPlaytimeAsync(gameId);
             playtimesById[gameId] = playtimeMins;
         }
+    }
+
+    public void SetContentViewToEmpty()
+    {
+        SplitViewContentViewModel = null;
+
+        SelectedDownloadedGame = null;
+        SelectedUninstalledGame = null;
     }
 }

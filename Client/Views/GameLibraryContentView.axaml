@@ -21,14 +21,21 @@
 
             <StackPanel Orientation="Horizontal" Spacing="20">
                 <Button CornerRadius="20" FontSize="30" Width="200" 
+                        IsVisible="{Binding PlayButtonVisible}" 
                         Command="{Binding PlayGameCommand}">
                     <TextBlock HorizontalAlignment="Center">Play</TextBlock>
                 </Button>
                 <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575"
+                        IsVisible="{Binding UninstallButtonVisible}"
                         Command="{Binding UninstallGameCommand}">
                     <TextBlock HorizontalAlignment="Center">Uninstall</TextBlock>
                 </Button>
-                <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575">
+                <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575"
+                        IsVisible="{Binding InstallButtonVisible}">
+                    <TextBlock HorizontalAlignment="Center">Install</TextBlock>
+                </Button>
+                <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575"
+                        IsVisible="{Binding SettingsButtonVisible}">
                     <TextBlock HorizontalAlignment="Center">Settings</TextBlock>
                 </Button>
             </StackPanel>
