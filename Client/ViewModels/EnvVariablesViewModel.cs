@@ -15,6 +15,10 @@ public partial class EnvVariablesViewModel : ViewModelBase
 
     [ObservableProperty] private List<ProtonEnvVariable> _envVariables;
 
+    [ObservableProperty] private ProtonEnvVariable? _selectedEnvVar;
+
+    [ObservableProperty] private bool _envVarSelected;
+
     [ObservableProperty] private string _newVarKey;
     
     [ObservableProperty] private string _newVarValue;
@@ -43,11 +47,23 @@ public partial class EnvVariablesViewModel : ViewModelBase
         });
     }
 
+    [RelayCommand]
+    private async Task RemoveEnvVar()
+    {
+        ProtonManager protonManager = new ProtonManager();
+        await protonManager.RemoveProtonEnvVariableAsync(_protonSettings.GameId, SelectedEnvVar.Key);
+
+        await PopulateEnvVars(_protonSettings.GameId);
+    }
+
     private async Task PopulateEnvVars(Guid gameId)
     {
         ProtonManager protonManager = new ProtonManager();
         EnvVariables = await protonManager.GetAllEnvVariables(gameId);
     }
-    
-    
+
+    partial void OnSelectedEnvVarChanged(ProtonEnvVariable? value)
+    {
+        EnvVarSelected = value != null;
+    }
 }

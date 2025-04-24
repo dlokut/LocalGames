@@ -41,6 +41,14 @@ public class ProtonManager
         }
     }
 
+    public async Task<List<ProtonEnvVariable>> GetAllEnvVariables(Guid gameId)
+    {
+        await using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            return dbContext.ProtonEnvVariables.Where(pev => pev.GameId == gameId).ToList();
+        }
+    }
+
     public async Task<bool> CanLaunchGameAsync(Guid gameId)
     {
         using (ClientDbContext dbContext = new ClientDbContext())

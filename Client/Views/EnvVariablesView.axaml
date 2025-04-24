@@ -17,7 +17,8 @@
 
         <Border BorderThickness="5" BorderBrush="White" Width="500" Height="400" Margin="0 20">
             <ScrollViewer>
-                <ListBox ItemsSource="{Binding EnvVariables}">
+                <ListBox ItemsSource="{Binding EnvVariables}" 
+                         SelectedItem="{Binding SelectedEnvVar}">
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type database-models:ProtonEnvVariable}">
                             <StackPanel Orientation="Horizontal">
@@ -29,6 +30,11 @@
                 </ListBox>
             </ScrollViewer>
         </Border>
+        
+        <Button Width="200" HorizontalAlignment="Center" IsEnabled="{Binding EnvVarSelected}"
+                Command="{Binding RemoveEnvVarCommand}" Margin="0 0 0 20">
+            <TextBlock FontSize="20" HorizontalAlignment="Center">Delete</TextBlock>
+        </Button>
         
         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
             <TextBox Width="200" Watermark="Key" Text="{Binding NewVarKey}"/>
