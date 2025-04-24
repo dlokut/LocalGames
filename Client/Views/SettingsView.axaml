@@ -11,7 +11,8 @@
         <StackPanel>
             <TextBlock HorizontalAlignment="Center" FontSize="60">Game title</TextBlock>
 
-            <Button HorizontalAlignment="Left" Margin="20 0 0 0">
+            <Button HorizontalAlignment="Left" Margin="20 0 0 0"
+                    Command="{Binding GoToGameLibraryCommand}">
                 <Image Source="/Assets/Icons/arrow-back-up.png" MaxWidth="50" MaxHeight="50"></Image>
             </Button>
 
@@ -19,11 +20,8 @@
 
                 <StackPanel HorizontalAlignment="Left" Margin=" 0 30">
                     <TextBlock FontSize="30">Main executable</TextBlock>
-                    <ComboBox Width="500">
-                        <ComboBoxItem>Item 1</ComboBoxItem>
-                        <ComboBoxItem>Item 2</ComboBoxItem>
-                        <ComboBoxItem>Item 3</ComboBoxItem>
-                    </ComboBox>
+                    <ComboBox ItemsSource="{Binding ExeFiles}" 
+                              SelectedItem="{Binding MainExeFile}" Width="500"/>
                 </StackPanel>
 
                 <TextBlock HorizontalAlignment="Left" FontSize="45">Proton</TextBlock>

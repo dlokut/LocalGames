@@ -79,6 +79,19 @@ public class GameApiClient
         }
     }
 
+    public async Task<string?> GetMainExeFileName(Guid gameId)
+    {
+        await using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            GameFile? foundGameFile = await dbContext.GameFiles.FirstOrDefaultAsync(
+                gf => (gf.GameId == gameId) && (gf.IsMainExecutable));
+
+            if (foundGameFile == null) return null;
+            else return Path.GetFileName(foundGameFile.Directory);
+
+        }
+    }
+
     private const string UPLOAD_GAME_ENDPOINT = "Game/v1/PostUploadGame";
 
     public async Task UploadGameAsync(string gameName, List<string> gameFilesDirs)
