@@ -27,16 +27,7 @@ public partial class GameLibraryViewModel : ViewModelBase
 
     public GameLibraryViewModel()
     {
-        Thread.Sleep(4000);
         _ = PopulateGamesAsync();
-        /*
-        SplitViewContentViewModel = new GameLibraryContentViewModel("test", "test2",
-            "https://media.npr.org/assets/img/2022/10/20/gettyimages-113243874_custom-3024be1adbcaedb6e18a18ca46c8dadc58ce28a0.jpg?s=1100&c=50&f=jpeg")
-        {
-            MainWindowViewModel = this.MainWindowViewModel
-        };
-        */
-
     }
 
     [RelayCommand]
@@ -48,31 +39,6 @@ public partial class GameLibraryViewModel : ViewModelBase
         });
     }
     
-    [RelayCommand]
-    private async Task Test()
-    {
-        GameApiClient gameApiClient = new GameApiClient();
-        var games = await gameApiClient.GetAllGamesOnServer();
-        await gameApiClient.UninstallGameAsync(games.First().Id);
-        //await gameApiClient.DownloadGameAsync(games.First());
-        await PopulateGamesAsync();
-        //await PopulateGamesAsync();
-
-        //SetContentViewToEmpty();
-        //int playtimeMins = await _gameApiClient.GetPlaytimeAsync(games.First().Id);
-        /*
-        List<string> artworks =
-        [
-            "https://media.npr.org/assets/img/2022/10/20/gettyimages-113243874_custom-3024be1adbcaedb6e18a18ca46c8dadc58ce28a0.jpg?s=1100&c=50&f=jpeg",
-            "https://media.npr.org/assets/img/2022/10/20/gettyimages-113243874_custom-3024be1adbcaedb6e18a18ca46c8dadc58ce28a0.jpg?s=1100&c=50&f=jpeg"
-        ];
-
-        SplitViewContentViewModel = new GameLibraryContentViewModel(InstalledGames.First().Id, "test1", "test2",
-            "https://media.npr.org/assets/img/2022/10/20/gettyimages-113243874_custom-3024be1adbcaedb6e18a18ca46c8dadc58ce28a0.jpg?s=1100&c=50&f=jpeg",
-            artworks);
-            */
-    }
-
     partial void OnSelectedDownloadedGameChanged(DownloadedGame? value)
     {
         if (value == null) return;
@@ -95,6 +61,12 @@ public partial class GameLibraryViewModel : ViewModelBase
        SelectedDownloadedGame = null;
     }
 
+    [RelayCommand]
+    private async Task RefreshGames()
+    {
+        await PopulateGamesAsync();
+    }
+    
     public async Task PopulateGamesAsync()
     {
         GameApiClient gameApiClient = new GameApiClient();

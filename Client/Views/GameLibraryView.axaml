@@ -11,16 +11,22 @@
     <SplitView IsPaneOpen="True" OpenPaneLength="300" DisplayMode="CompactInline">
         <SplitView.Pane>
             <StackPanel Spacing="30">
-                <Button
-                    Margin="0 20 0 0"
-                    CornerRadius="30"
-                    Command="{Binding GoToUploadGameCommand}"
-                    HorizontalAlignment="Center">
-                    <TextBlock HorizontalAlignment="Center"
-                               FontSize="35">
-                        + Upload Game
-                    </TextBlock>
-                </Button>
+                <StackPanel Orientation="Horizontal" Margin="0 20 0 0" Spacing="10">
+                    <Button
+                        Width="220"
+                        CornerRadius="30"
+                        Command="{Binding GoToUploadGameCommand}"
+                        HorizontalAlignment="Center">
+                        <TextBlock HorizontalAlignment="Center"
+                                   FontSize="20">
+                            + Upload Game
+                        </TextBlock>
+                    </Button>
+                    <Button Width="50" Height="50" CornerRadius="10" 
+                            Command="{Binding RefreshGamesCommand}">
+                        <Image MaxHeight="50" MaxWidth="50" Source="/Assets/Icons/reload.png"></Image>
+                    </Button>
+                </StackPanel>
                 <Expander Width="300" Header="Installed" IsExpanded="True">
                     <ListBox ItemsSource="{Binding InstalledGames}"
                              SelectedItem="{Binding SelectedDownloadedGame}">
