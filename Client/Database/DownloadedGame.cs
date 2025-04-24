@@ -17,8 +17,6 @@ public class DownloadedGame
     
     public List<ProtonEnvVariable> ProtonEnvVariables { get; set; }
     
-    public List<GameSave> GameSaves { get; set; }
-    
     public List<Artwork> Artworks { get; set; }
     
     

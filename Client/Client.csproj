@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AvaloniaUseSkia>true</AvaloniaUseSkia>
+        <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     </PropertyGroup>
 

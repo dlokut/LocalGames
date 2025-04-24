@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+using Client.Database;
 
 namespace Client.Models;
 
@@ -43,7 +45,6 @@ public class SaveFileManager
         newSaveFiles.AddRange(FindFilesInPath(prefixDocumentsPath, DOCUMENTS_EXCLUDED_FOLDERS));
 
         return newSaveFiles;
-
     }
 
     private List<string> FindFilesInPath(string path, List<string> excludedFolders)

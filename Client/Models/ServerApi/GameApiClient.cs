@@ -92,6 +92,18 @@ public class GameApiClient
         }
     }
 
+    private const string UPLOAD_METADATA_ENDPOINT = "Game/v1/PostGameMetadata";
+
+    public async Task UploadMetadataAsync(ServerGame serverGame)
+    {
+         ServerInfoManager serverInfoManager = new ServerInfoManager();
+         HttpClient clientWithCookies = await serverInfoManager.GetClientWithLoginCookieAsync();
+
+         string endpoint = UPLOAD_METADATA_ENDPOINT +
+                           $"?gameId={serverGame.Id}&name={serverGame.Name}&summary={serverGame.Summary}&coverImageUrl={serverGame.CoverUrl}";
+         await clientWithCookies.PostAsync(endpoint, null);
+    }
+
     private const string UPLOAD_GAME_ENDPOINT = "Game/v1/PostUploadGame";
 
     public async Task UploadGameAsync(string gameName, List<string> gameFilesDirs)

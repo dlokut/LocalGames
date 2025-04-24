@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using Server.Attributes;
 using Server.Database;
@@ -172,7 +173,7 @@ namespace Server.Controllers
 
             else
             {
-                foundPlaytime.PlaytimeMins = playtimeMins;
+                foundPlaytime.PlaytimeMins += playtimeMins;
                 _dbContext.Playtimes.Update(foundPlaytime);
             }
 
@@ -228,7 +229,8 @@ namespace Server.Controllers
 
         [HttpPost]
         [Route("v1/PostGameMetadata")]
-        public async Task<IActionResult> PostGameMetadataAsync(Guid gameId, string? summary, string? coverImageUrl)
+        public async Task<IActionResult> PostGameMetadataAsync(Guid gameId, string? name, string? summary,
+            string? coverImageUrl)
         {
             Game? foundGame = await _dbContext.Games.FindAsync(gameId);
             if (foundGame == null)
@@ -237,6 +239,7 @@ namespace Server.Controllers
             }
 
             if (summary != null) foundGame.Summary = summary;
+            if (name != null) foundGame.Name = name;
             if (coverImageUrl != null) foundGame.CoverUrl = coverImageUrl;
 
             _dbContext.Games.Update(foundGame);
