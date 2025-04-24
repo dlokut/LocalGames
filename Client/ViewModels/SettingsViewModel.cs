@@ -75,9 +75,16 @@ public partial class SettingsViewModel : ViewModelBase
         if (DxvkFramerateSet) _protonSettings.DxvkFramerate = DxvkFramerate;
         _protonSettings.MangohudEnabled = MangohudEnabled;
         _protonSettings.GamemodeEnabled = GamemodeEnabled;
+        _protonSettings.ProtonVersion = ChosenProtonVersion;
 
         ProtonManager protonManager = new ProtonManager();
         await protonManager.SetProtonSettings(_protonSettings);
+
+        if (MainExeFile != null)
+        {
+            string mainExePath = gameExeFilesByFileName[MainExeFile];
+            await protonManager.SetPrimaryExecutible(_protonSettings.GameId, mainExePath);
+        }
         
         GoToGameLibrary();
     }
