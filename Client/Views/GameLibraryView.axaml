@@ -14,7 +14,7 @@
                 <Button
                     Margin="0 20 0 0"
                     CornerRadius="30"
-                    Command="{Binding TestCommand}"
+                    Command="{Binding GoToUploadGameCommand}"
                     HorizontalAlignment="Center">
                     <TextBlock HorizontalAlignment="Center"
                                FontSize="35">

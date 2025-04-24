@@ -9,10 +9,11 @@
     <StackPanel>
         <TextBlock HorizontalAlignment="Center" FontSize="60" Margin="0 10 0 0">Upload Game</TextBlock>
         
-        <Button HorizontalAlignment="Left" Margin="20 0 0 0">
+        <Button HorizontalAlignment="Left" Margin="20 0 0 0" 
+                Command="{Binding GoToGameLibraryCommand}">
             <Image Source="/Assets/Icons/arrow-back-up.png" MaxWidth="50" MaxHeight="50"></Image>
         </Button>
-
+        
         <Border BorderThickness="5" BorderBrush="White" Width="500" Height="400" Margin="0 20">
             <ScrollViewer>
                 <ListBox ItemsSource="{Binding AddedFilesDirs}">

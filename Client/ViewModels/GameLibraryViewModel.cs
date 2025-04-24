@@ -40,6 +40,15 @@ public partial class GameLibraryViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void GoToUploadGame()
+    {
+        MainWindowViewModel.SwitchViews(new UploadGameViewModel()
+        {
+            MainWindowViewModel = this.MainWindowViewModel
+        });
+    }
+    
+    [RelayCommand]
     private async Task Test()
     {
         GameApiClient gameApiClient = new GameApiClient();

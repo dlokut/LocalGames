@@ -18,4 +18,13 @@ public partial class UploadGameViewModel : ViewModelBase
         newList.Add(InputFileDir);
         AddedFilesDirs = newList;
     }
+
+    [RelayCommand]
+    private void GoToGameLibrary()
+    {
+        MainWindowViewModel.SwitchViews(new GameLibraryViewModel()
+        {
+            MainWindowViewModel = this.MainWindowViewModel
+        });
+    }
 }

@@ -45,6 +45,8 @@ public partial class GameLibraryContentViewModel : ViewModelBase
     
     [ObservableProperty] private bool _installButtonVisible;
     
+    [ObservableProperty] private bool _editMetadataButtonVisible;
+    
 
     [ObservableProperty] private List<Bitmap> _artworksBitmaps = new List<Bitmap>();
 
@@ -63,6 +65,7 @@ public partial class GameLibraryContentViewModel : ViewModelBase
         SettingsButtonVisible = true;
         UninstallButtonVisible = true;
         InstallButtonVisible = false;
+        EditMetadataButtonVisible = false;
         
         _ = LoadCover(downloadedGame.CoverUrl);
         _ = SetPlayButtonEnabled(downloadedGame.Id);
@@ -86,6 +89,7 @@ public partial class GameLibraryContentViewModel : ViewModelBase
         SettingsButtonVisible = false;
         UninstallButtonVisible = false;
         InstallButtonVisible = true;
+        EditMetadataButtonVisible = true;
 
     }
 
