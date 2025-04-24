@@ -19,7 +19,12 @@ public class ServerInfoManager
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNameCaseInsensitive = true
     };
-    
+
+    public bool AlreadySignedIn()
+    {
+        string cookiesFilePath = Path.Combine(Directory.GetCurrentDirectory(), COOKIES_FILE_NAME);
+        return File.Exists(cookiesFilePath);
+    }
     public async Task SaveServerAddressAsync(string address)
     {
         string saveFilePath = Path.Combine(Directory.GetCurrentDirectory(), ADDRESS_FILE_NAME);
