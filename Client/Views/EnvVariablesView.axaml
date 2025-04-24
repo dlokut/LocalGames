@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:vm="using:Client.ViewModels"
-             x:DataType="vm:SettingsViewModel"
+             x:DataType="vm:EnvVariablesViewModel"
              x:Class="Client.Views.EnvVariablesView">
     <StackPanel>
         <TextBlock HorizontalAlignment="Center" FontSize="60" Margin="0 10 0 0">Game Title - Environment Variables</TextBlock>
@@ -20,9 +20,9 @@
         </Border>
         
         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
-            <TextBox Width="200" Watermark="Key"></TextBox>
-            <TextBox Width="400" Watermark="Value"></TextBox>
-            <Button Width="200">
+            <TextBox Width="200" Watermark="Key" Text="{Binding NewVarKey}"/>
+            <TextBox Width="400" Watermark="Value" Text="{Binding NewVarValue}"/>
+            <Button Width="200" Command="{Binding CreateNewEnvVarCommand}">
                 <TextBlock HorizontalAlignment="Center" FontSize="20">Add</TextBlock>
             </Button>
         </StackPanel>

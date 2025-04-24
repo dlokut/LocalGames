@@ -121,7 +121,7 @@ public partial class GameLibraryContentViewModel : ViewModelBase
     {
         GameApiClient gameApiClient = new GameApiClient();
         ProtonSettings protonSettings = await gameApiClient.GetProtonSettingsAsync(_gameId);
-        
+
         MainWindowViewModel.SwitchViews(new SettingsViewModel(protonSettings, GameName)
         {
             MainWindowViewModel = this.MainWindowViewModel
