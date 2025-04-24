@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Client.ViewModels"
+             x:DataType="vm:SettingsViewModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Client.Views.SettingsView">
+
+    <ScrollViewer>
+        <StackPanel>
+            <TextBlock HorizontalAlignment="Center" FontSize="60">Game title</TextBlock>
+
+            <Button HorizontalAlignment="Left" Margin="20 0 0 0">
+                <Image Source="/Assets/Icons/arrow-back-up.png" MaxWidth="50" MaxHeight="50"></Image>
+            </Button>
+
+            <StackPanel HorizontalAlignment="Center" Width="500">
+
+                <StackPanel HorizontalAlignment="Left" Margin=" 0 30">
+                    <TextBlock FontSize="30">Main executable</TextBlock>
+                    <ComboBox Width="500">
+                        <ComboBoxItem>Item 1</ComboBoxItem>
+                        <ComboBoxItem>Item 2</ComboBoxItem>
+                        <ComboBoxItem>Item 3</ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+
+                <TextBlock HorizontalAlignment="Left" FontSize="45">Proton</TextBlock>
+
+                <StackPanel HorizontalAlignment="Left" Margin=" 0 30">
+                    <TextBlock FontSize="30">Proton version</TextBlock>
+                    <ComboBox Width="500">
+                        <ComboBoxItem>Item 1</ComboBoxItem>
+                        <ComboBoxItem>Item 2</ComboBoxItem>
+                        <ComboBoxItem>Item 3</ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Left" Margin=" 0 30">
+                    <TextBlock FontSize="30">Prefix directory</TextBlock>
+                    <TextBox Width="500" Watermark="/directory/to/prefix/folder"></TextBox>
+                </StackPanel>
+                
+                <StackPanel HorizontalAlignment="Left" Margin=" 0 20">
+                    <CheckBox Width="500" FontSize="30">Enable F-Sync</CheckBox>
+                    <CheckBox Width="500" FontSize="30">Enable E-Sync</CheckBox>
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Left" Margin=" 0 20">
+                    <CheckBox Width="500" FontSize="30">Use DXVK</CheckBox>
+                    <CheckBox Width="500" FontSize="30">Set DXVK Framerate</CheckBox>
+                    <TextBox Width="500" Watermark="60" Margin="0 10 0 0"></TextBox>
+                </StackPanel>
+
+                <TextBlock HorizontalAlignment="Left" FontSize="45" Margin="0 20 0 0">External apps</TextBlock>
+                <TextBlock HorizontalAlignment="Left" Margin="0 10 0 0">Apps must be installed</TextBlock>
+
+                <StackPanel HorizontalAlignment="Left" Margin=" 0 20">
+                    <CheckBox Width="500" FontSize="30">Enable Mangohud</CheckBox>
+                    <CheckBox Width="500" FontSize="30">Enable Gamemode</CheckBox>
+                </StackPanel>
+                
+                <Button Margin="0 100 0 0" Width="500">
+                        <TextBlock FontSize="45" HorizontalAlignment="Center">Save</TextBlock>
+                </Button>
+                
+                <Button Margin="0 100 0 20" Width="500">
+                        <TextBlock FontSize="45" HorizontalAlignment="Center">Environment variables</TextBlock>
+                </Button>
+                
+            </StackPanel>
+
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
