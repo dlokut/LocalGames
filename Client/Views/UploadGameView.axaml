@@ -15,18 +15,20 @@
 
         <Border BorderThickness="5" BorderBrush="White" Width="500" Height="400" Margin="0 20">
             <ScrollViewer>
-                <ListBox>
-                    <ListBoxItem>Item 1</ListBoxItem>
-                    <ListBoxItem>Item 2</ListBoxItem>
-                    <ListBoxItem>Item 3</ListBoxItem>
+                <ListBox ItemsSource="{Binding AddedFilesDirs}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock FontSize="20" Text="{Binding}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
                 </ListBox>
             </ScrollViewer>
         </Border>
 
         <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
 
-            <TextBox Width="400" Watermark="Game file or path" />
-            <Button Width="200">
+            <TextBox Width="400" Watermark="Game file or path" Text="{Binding InputFileDir}" />
+            <Button Width="200" Command="{Binding AddFileDirCommand}">
                 <TextBlock HorizontalAlignment="Center" FontSize="20">Add</TextBlock>
             </Button>
 
