@@ -15,6 +15,24 @@ public partial class SettingsViewModel : ViewModelBase
     
     private Dictionary<string, string> gameExeFilesByFileName;
 
+    [ObservableProperty] private string _gameName;
+
+    [ObservableProperty] private string _prefixDir;
+
+    [ObservableProperty] private bool _eSyncEnabled;
+    
+    [ObservableProperty] private bool _fSyncEnabled;
+
+    [ObservableProperty] private bool _dxvkEnabled;
+
+    [ObservableProperty] private bool _dxvkFramerateSet;
+    
+    [ObservableProperty] private int? _dxvkFramerate;
+
+    [ObservableProperty] private bool _mangohudEnabled;
+
+    [ObservableProperty] private bool _gamemodeEnabled;
+    
     [ObservableProperty] private List<string> _exeFiles;
 
     [ObservableProperty] private List<string> _protonVersions;
@@ -23,9 +41,19 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty] private string? _mainExeFile;
     
-    public SettingsViewModel(ProtonSettings protonSettings)
+    public SettingsViewModel(ProtonSettings protonSettings, string gameName)
     {
         _protonSettings = protonSettings;
+
+        GameName = gameName;
+        PrefixDir = protonSettings.PrefixDir;
+        ESyncEnabled = protonSettings.ESyncEnabled;
+        FSyncEnabled = protonSettings.FSyncEnabled;
+        DxvkEnabled = protonSettings.DxvkEnabled;
+        DxvkFramerate = protonSettings.DxvkFramerate;
+        DxvkFramerateSet = DxvkFramerate != null;
+        MangohudEnabled = protonSettings.MangohudEnabled;
+        GamemodeEnabled = protonSettings.GamemodeEnabled;
 
         SetProtonVersions();
         _ = SetExeFilesAsync();
