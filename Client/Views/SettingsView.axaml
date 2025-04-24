@@ -70,7 +70,8 @@
                         <TextBlock FontSize="45" HorizontalAlignment="Center">Save</TextBlock>
                 </Button>
                 
-                <Button Margin="0 100 0 20" Width="500">
+                <Button Margin="0 100 0 20" Width="500" 
+                        Command="{Binding GoToEnvVariablesCommand}">
                         <TextBlock FontSize="45" HorizontalAlignment="Center">Environment variables</TextBlock>
                 </Button>
                 

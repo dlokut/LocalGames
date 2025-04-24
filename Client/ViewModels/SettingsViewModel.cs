@@ -72,11 +72,13 @@ public partial class SettingsViewModel : ViewModelBase
         _protonSettings.FSyncEnabled = FSyncEnabled;
         _protonSettings.DxvkEnabled = DxvkEnabled;
         _protonSettings.DxvkAsync = DxvkAsync;
-        if (DxvkFramerateSet) _protonSettings.DxvkFramerate = DxvkFramerate;
         _protonSettings.MangohudEnabled = MangohudEnabled;
         _protonSettings.GamemodeEnabled = GamemodeEnabled;
         _protonSettings.ProtonVersion = ChosenProtonVersion;
 
+        if (DxvkFramerateSet) _protonSettings.DxvkFramerate = DxvkFramerate;
+        else _protonSettings.DxvkFramerate = null;
+        
         ProtonManager protonManager = new ProtonManager();
         await protonManager.SetProtonSettings(_protonSettings);
 
@@ -93,6 +95,15 @@ public partial class SettingsViewModel : ViewModelBase
     private void GoToGameLibrary()
     {
         MainWindowViewModel.SwitchViews(new GameLibraryViewModel()
+        {
+            MainWindowViewModel = this.MainWindowViewModel
+        });
+    }
+
+    [RelayCommand]
+    private async void GoToEnvVariables()
+    {
+        MainWindowViewModel.SwitchViews(new EnvVariablesViewModel(_protonSettings, GameName)
         {
             MainWindowViewModel = this.MainWindowViewModel
         });

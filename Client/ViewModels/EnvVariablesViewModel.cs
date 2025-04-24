@@ -10,24 +10,37 @@ namespace Client.ViewModels;
 
 public partial class EnvVariablesViewModel : ViewModelBase
 {
-    private readonly Guid _gameId;
-    
+    private readonly ProtonSettings _protonSettings;
+    private readonly string _gameName;
+
     [ObservableProperty] private List<ProtonEnvVariable> _envVariables;
 
     [ObservableProperty] private string _newVarKey;
     
     [ObservableProperty] private string _newVarValue;
-    public EnvVariablesViewModel(Guid gameId)
+    public EnvVariablesViewModel(ProtonSettings protonSettings, string gameName)
     {
-        _gameId = gameId;
-        _ = PopulateEnvVars(gameId);
+        _protonSettings = protonSettings;
+        _gameName = gameName;
+        _ = PopulateEnvVars(protonSettings.GameId);
     }
 
     [RelayCommand]
     private async Task CreateNewEnvVar()
     {
         ProtonManager protonManager = new ProtonManager();
-        await protonManager.AddProtonEnvVariableAsync(_gameId, NewVarKey, NewVarValue);
+        await protonManager.AddProtonEnvVariableAsync(_protonSettings.GameId, NewVarKey, NewVarValue);
+
+        await PopulateEnvVars(_protonSettings.GameId);
+    }
+
+    [RelayCommand]
+    private void GoToSettings()
+    {
+        MainWindowViewModel.SwitchViews(new SettingsViewModel(_protonSettings, _gameName)
+        {
+            MainWindowViewModel = this.MainWindowViewModel
+        });
     }
 
     private async Task PopulateEnvVars(Guid gameId)
