@@ -2,6 +2,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using Client.Models.ServerApi;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -13,6 +14,14 @@ public partial class EditMetadataViewModel : ViewModelBase
 
     [ObservableProperty] private string _coverPreviewSource;
 
+    [ObservableProperty] private ServerGame _serverGame;
+
+    public EditMetadataViewModel(ServerGame serverGame)
+    {
+        _serverGame = serverGame;
+        CoverPreviewSource = serverGame.CoverUrl;
+    }
+    
     partial void OnCoverPreviewSourceChanged(string? value)
     {
         if (value == null) return;

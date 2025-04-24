@@ -19,13 +19,14 @@
                         
                         <StackPanel Spacing="10" Margin="0 0 0 20">
                             <TextBlock HorizontalAlignment="Left" FontSize="30">Game Name</TextBlock>
-                            <TextBox HorizontalAlignment="Left" Watermark="Name" Width="500"></TextBox>
+                            <TextBox HorizontalAlignment="Left" Watermark="Name" Width="500" 
+                                     Text="{Binding ServerGame.Name}"/>
                         </StackPanel>
 
                         <StackPanel Spacing="10" Margin="0 0 0 20">
                             <TextBlock HorizontalAlignment="Left" FontSize="30">Game Summary</TextBlock>
                             <TextBox HorizontalAlignment="Left" Watermark="Summary" Width="500"
-                                     Height="200"></TextBox>
+                                     Height="200" Text="{Binding ServerGame.Summary}"/>
                         </StackPanel>
 
                         <StackPanel Spacing="10" Margin="0 0 0 20">

@@ -41,6 +41,10 @@
                         Command="{Binding GoToSettingsCommand}">
                     <TextBlock HorizontalAlignment="Center">Settings</TextBlock>
                 </Button>
+                <Button CornerRadius="20" FontSize="30" Width="250" Background="#747575"
+                        Command="{Binding GoToEditMetadataCommand}">
+                    <TextBlock HorizontalAlignment="Center">Edit metadata</TextBlock>
+                </Button>
             </StackPanel>
 
             <ScrollViewer>

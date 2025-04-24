@@ -128,6 +128,15 @@ public partial class GameLibraryContentViewModel : ViewModelBase
         });
     }
 
+    [RelayCommand]
+    private void GoToEditMetadata()
+    {
+        MainWindowViewModel.SwitchViews(new EditMetadataViewModel(_serverGame)
+        {
+            MainWindowViewModel = this.MainWindowViewModel
+        });
+    }
+
     private async Task LoadCover(string url)
     {
         CoverBitmap = await LoadBitmapFromUrl(url);
