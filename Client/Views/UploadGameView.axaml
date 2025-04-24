@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Client.ViewModels"
+             x:DataType="vm:UploadGameViewModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Client.Views.UploadGameView">
+    <StackPanel>
+        <TextBlock HorizontalAlignment="Center" FontSize="60" Margin="0 10 0 0">Upload Game</TextBlock>
+        
+        <Button HorizontalAlignment="Left" Margin="20 0 0 0">
+            <Image Source="/Assets/Icons/arrow-back-up.png" MaxWidth="50" MaxHeight="50"></Image>
+        </Button>
+
+        <Border BorderThickness="5" BorderBrush="White" Width="500" Height="400" Margin="0 20">
+            <ScrollViewer>
+                <ListBox>
+                    <ListBoxItem>Item 1</ListBoxItem>
+                    <ListBoxItem>Item 2</ListBoxItem>
+                    <ListBoxItem>Item 3</ListBoxItem>
+                </ListBox>
+            </ScrollViewer>
+        </Border>
+
+        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10">
+
+            <TextBox Width="400" Watermark="Game file or path" />
+            <Button Width="200">
+                <TextBlock HorizontalAlignment="Center" FontSize="20">Add</TextBlock>
+            </Button>
+
+        </StackPanel>
+
+        <Button Width="300" HorizontalAlignment="Center" Margin="0 20 0 0">
+            <TextBlock HorizontalAlignment="Center" FontSize="30">Upload</TextBlock>
+        </Button>
+        
+    </StackPanel>
+</UserControl>
