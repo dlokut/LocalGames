@@ -47,11 +47,35 @@ public class GameApiClient
 
     }
 
+    public async Task<ProtonSettings> GetProtonSettingsAsync(Guid gameId)
+    {
+        await using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            return await dbContext.ProtonSettings.FindAsync(gameId);
+        }
+    }
+
     public async Task<List<DownloadedGame>> GetAllDownloadedGames()
     {
         using (ClientDbContext dbContext = new ClientDbContext())
         {
             return await dbContext.DownloadedGames.ToListAsync();
+        }
+    }
+
+    public async Task<Dictionary<string, string>> GetExeGameFilesAsync(Guid gameId)
+    {
+        await using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            List<GameFile> gameExeFiles = dbContext.GameFiles.Where(gf =>
+                (gf.GameId == gameId) && (gf.Directory.Contains("exe"))).ToList();
+
+            Dictionary<string, string> gameExeFilesByFileName = gameExeFiles.ToDictionary(
+                gef => Path.GetFileName(gef.Directory),
+                gef => gef.Directory
+            );
+
+            return gameExeFilesByFileName;
         }
     }
 

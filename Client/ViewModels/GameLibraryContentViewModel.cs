@@ -117,9 +117,12 @@ public partial class GameLibraryContentViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void GoToSettings()
+    private async Task GoToSettings()
     {
-        MainWindowViewModel.SwitchViews(new SettingsViewModel()
+        GameApiClient gameApiClient = new GameApiClient();
+        ProtonSettings protonSettings = await gameApiClient.GetProtonSettingsAsync(_gameId);
+        
+        MainWindowViewModel.SwitchViews(new SettingsViewModel(protonSettings)
         {
             MainWindowViewModel = this.MainWindowViewModel
         });
