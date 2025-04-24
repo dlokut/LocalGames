@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Client.ViewModels"
+             x:DataType="vm:EditMetadataViewModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Client.Views.EditMetadataView">
+    <StackPanel>
+        <TextBlock FontSize="60" HorizontalAlignment="Center">Edit metadata - game name</TextBlock>
+
+        <Button HorizontalAlignment="Left" Margin="20 0 0 0">
+            <Image Source="/Assets/Icons/arrow-back-up.png" MaxWidth="50" MaxHeight="50"></Image>
+        </Button>
+
+        <StackPanel Width="900" Orientation="Horizontal">
+            <Border BorderThickness="2" Padding="5" BorderBrush="White">
+                    <StackPanel Width="500">
+                        
+                        <StackPanel Spacing="10" Margin="0 0 0 20">
+                            <TextBlock HorizontalAlignment="Left" FontSize="30">Game Name</TextBlock>
+                            <TextBox HorizontalAlignment="Left" Watermark="Name" Width="500"></TextBox>
+                        </StackPanel>
+
+                        <StackPanel Spacing="10" Margin="0 0 0 20">
+                            <TextBlock HorizontalAlignment="Left" FontSize="30">Game Summary</TextBlock>
+                            <TextBox HorizontalAlignment="Left" Watermark="Summary" Width="500"
+                                     Height="200"></TextBox>
+                        </StackPanel>
+
+                        <StackPanel Spacing="10" Margin="0 0 0 20">
+                            <TextBlock HorizontalAlignment="Left" FontSize="30">Game Cover Url</TextBlock>
+                            <TextBox HorizontalAlignment="Left" Watermark="https://images.com/image.png" Width="500"
+                                     Text="{Binding CoverPreviewSource}">
+                            </TextBox>
+                        </StackPanel>
+
+                        <Button Width="200" Margin="0 0 0 50">
+                            <TextBlock FontSize="20">Upload metadata</TextBlock>
+                        </Button>
+                        
+                    </StackPanel>
+            </Border>
+
+            <Image MaxWidth="300" MaxHeight="400" Margin="40 0 0 0" 
+                   Source="{Binding CoverPreviewBitmap}"/>
+            
+        </StackPanel>
+    </StackPanel>
+</UserControl>

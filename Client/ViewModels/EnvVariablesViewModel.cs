@@ -13,6 +13,8 @@ public partial class EnvVariablesViewModel : ViewModelBase
     private readonly ProtonSettings _protonSettings;
     private readonly string _gameName;
 
+    [ObservableProperty] private string _gameTitle;
+    
     [ObservableProperty] private List<ProtonEnvVariable> _envVariables;
 
     [ObservableProperty] private ProtonEnvVariable? _selectedEnvVar;
@@ -26,6 +28,8 @@ public partial class EnvVariablesViewModel : ViewModelBase
     {
         _protonSettings = protonSettings;
         _gameName = gameName;
+        
+        SetTitle(gameName);
         _ = PopulateEnvVars(protonSettings.GameId);
     }
 
@@ -60,6 +64,11 @@ public partial class EnvVariablesViewModel : ViewModelBase
     {
         ProtonManager protonManager = new ProtonManager();
         EnvVariables = await protonManager.GetAllEnvVariables(gameId);
+    }
+
+    private void SetTitle(string gameName)
+    {
+        GameTitle = $"{gameName} - Environment variables";
     }
 
     partial void OnSelectedEnvVarChanged(ProtonEnvVariable? value)
