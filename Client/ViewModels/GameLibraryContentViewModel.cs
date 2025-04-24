@@ -32,6 +32,8 @@ public partial class GameLibraryContentViewModel : ViewModelBase
     [ObservableProperty] private string _playtime;
 
     [ObservableProperty] private bool _playButtonVisible;
+
+    [ObservableProperty] private bool _playButtonEnabled = false;
     
     [ObservableProperty] private bool _settingsButtonVisible;
     
@@ -58,8 +60,9 @@ public partial class GameLibraryContentViewModel : ViewModelBase
         InstallButtonVisible = false;
         
         _ = LoadCover(downloadedGame.CoverUrl);
+        _ = SetPlayButtonEnabled(downloadedGame.Id);
         //_ = LoadArtworks(artworkUrls);
-        
+
     }
 
     public GameLibraryContentViewModel(ServerGame serverGame, int playtimeMins, GameLibraryViewModel splitViewPaneModel)
@@ -94,6 +97,7 @@ public partial class GameLibraryContentViewModel : ViewModelBase
         await gameApiClient.UninstallGameAsync(_gameId);
 
         await _splitViewPaneModel.PopulateGamesAsync();
+        _splitViewPaneModel.SetContentViewToEmpty();
     }
 
     private async Task LoadCover(string url)
@@ -130,5 +134,11 @@ public partial class GameLibraryContentViewModel : ViewModelBase
         byte[] imageBytes = await httpClient.GetByteArrayAsync(url);
 
         return new Bitmap(new MemoryStream(imageBytes));
+    }
+
+    private async Task SetPlayButtonEnabled(Guid gameId)
+    {
+        ProtonManager protonManager = new ProtonManager();
+        PlayButtonEnabled = await protonManager.CanLaunchGameAsync(gameId);
     }
 }

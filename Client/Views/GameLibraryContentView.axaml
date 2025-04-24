@@ -20,17 +20,18 @@
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Spacing="20">
-                <Button CornerRadius="20" FontSize="30" Width="200" 
-                        IsVisible="{Binding PlayButtonVisible}" 
-                        Command="{Binding PlayGameCommand}">
-                    <TextBlock HorizontalAlignment="Center">Play</TextBlock>
-                </Button>
+                    <Button CornerRadius="20" FontSize="30" Width="200"
+                            IsVisible="{Binding PlayButtonVisible}"
+                            IsEnabled="{Binding PlayButtonEnabled}"
+                            Command="{Binding PlayGameCommand}">
+                        <TextBlock HorizontalAlignment="Center">Play</TextBlock>
+                    </Button>
                 <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575"
                         IsVisible="{Binding UninstallButtonVisible}"
                         Command="{Binding UninstallGameCommand}">
                     <TextBlock HorizontalAlignment="Center">Uninstall</TextBlock>
                 </Button>
-                <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575"
+                <Button CornerRadius="20" FontSize="30" Width="200"
                         IsVisible="{Binding InstallButtonVisible}">
                     <TextBlock HorizontalAlignment="Center">Install</TextBlock>
                 </Button>
@@ -41,19 +42,19 @@
             </StackPanel>
 
             <ScrollViewer>
-                
-            <ItemsControl ItemsSource="{Binding ArtworksBitmaps}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="4"></UniformGrid>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Image Source="{Binding}"></Image>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+
+                <ItemsControl ItemsSource="{Binding ArtworksBitmaps}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="4"></UniformGrid>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding}"></Image>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
         </StackPanel>
     </ScrollViewer>
