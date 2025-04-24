@@ -44,9 +44,9 @@ public partial class GameLibraryViewModel : ViewModelBase
     {
         GameApiClient gameApiClient = new GameApiClient();
         var games = await gameApiClient.GetAllGamesOnServer();
-        await gameApiClient.DownloadGameAsync(games.First());
+        await gameApiClient.UninstallGameAsync(games.First().Id);
+        //await gameApiClient.DownloadGameAsync(games.First());
         await PopulateGamesAsync();
-        //await gameApiClient.UninstallGameAsync(games.First().Id);
         //await PopulateGamesAsync();
 
         //SetContentViewToEmpty();
@@ -69,7 +69,11 @@ public partial class GameLibraryViewModel : ViewModelBase
         if (value == null) return;
 
 
-        SplitViewContentViewModel = new GameLibraryContentViewModel(value, playtimesById[value.Id], this);
+        SplitViewContentViewModel = new GameLibraryContentViewModel(value, playtimesById[value.Id],
+            this);
+        SplitViewContentViewModel.MainWindowViewModel = this.MainWindowViewModel;
+        
+        SelectedUninstalledGame = null;
     }
     
     partial void OnSelectedUninstalledGameChanged(ServerGame? value)
@@ -77,6 +81,9 @@ public partial class GameLibraryViewModel : ViewModelBase
         if (value == null) return;
 
        SplitViewContentViewModel = new GameLibraryContentViewModel(value, playtimesById[value.Id], this);
+       SplitViewContentViewModel.MainWindowViewModel = this.MainWindowViewModel;
+        
+       SelectedDownloadedGame = null;
     }
 
     public async Task PopulateGamesAsync()

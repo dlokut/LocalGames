@@ -18,6 +18,9 @@ public partial class GameLibraryContentViewModel : ViewModelBase
 {
     private readonly Guid _gameId;
 
+    private readonly ServerGame _serverGame;
+    
+
     private readonly GameLibraryViewModel _splitViewPaneModel;
 
     [ObservableProperty] private string _fillerText =
@@ -31,6 +34,7 @@ public partial class GameLibraryContentViewModel : ViewModelBase
 
     [ObservableProperty] private string _playtime;
 
+    
     [ObservableProperty] private bool _playButtonVisible;
 
     [ObservableProperty] private bool _playButtonEnabled = false;
@@ -40,6 +44,7 @@ public partial class GameLibraryContentViewModel : ViewModelBase
     [ObservableProperty] private bool _uninstallButtonVisible;
     
     [ObservableProperty] private bool _installButtonVisible;
+    
 
     [ObservableProperty] private List<Bitmap> _artworksBitmaps = new List<Bitmap>();
 
@@ -68,6 +73,7 @@ public partial class GameLibraryContentViewModel : ViewModelBase
     public GameLibraryContentViewModel(ServerGame serverGame, int playtimeMins, GameLibraryViewModel splitViewPaneModel)
     {
         _gameId = serverGame.Id;
+        _serverGame = serverGame;
         _splitViewPaneModel = splitViewPaneModel;
 
         GameName = serverGame.Name;
@@ -98,6 +104,25 @@ public partial class GameLibraryContentViewModel : ViewModelBase
 
         await _splitViewPaneModel.PopulateGamesAsync();
         _splitViewPaneModel.SetContentViewToEmpty();
+    }
+
+    [RelayCommand]
+    private async Task InstallGame()
+    {
+        GameApiClient gameApiClient = new GameApiClient();
+        await gameApiClient.DownloadGameAsync(_serverGame);
+        
+        await _splitViewPaneModel.PopulateGamesAsync();
+        _splitViewPaneModel.SetContentViewToEmpty();
+    }
+
+    [RelayCommand]
+    private void GoToSettings()
+    {
+        MainWindowViewModel.SwitchViews(new SettingsViewModel()
+        {
+            MainWindowViewModel = this.MainWindowViewModel
+        });
     }
 
     private async Task LoadCover(string url)

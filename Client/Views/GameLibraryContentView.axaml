@@ -32,11 +32,13 @@
                     <TextBlock HorizontalAlignment="Center">Uninstall</TextBlock>
                 </Button>
                 <Button CornerRadius="20" FontSize="30" Width="200"
-                        IsVisible="{Binding InstallButtonVisible}">
+                        IsVisible="{Binding InstallButtonVisible}"
+                        Command="{Binding InstallGameCommand}">
                     <TextBlock HorizontalAlignment="Center">Install</TextBlock>
                 </Button>
                 <Button CornerRadius="20" FontSize="30" Width="200" Background="#747575"
-                        IsVisible="{Binding SettingsButtonVisible}">
+                        IsVisible="{Binding SettingsButtonVisible}"
+                        Command="{Binding GoToSettingsCommand}">
                     <TextBlock HorizontalAlignment="Center">Settings</TextBlock>
                 </Button>
             </StackPanel>
