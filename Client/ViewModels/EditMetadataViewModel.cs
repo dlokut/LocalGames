@@ -31,6 +31,17 @@ public partial class EditMetadataViewModel : ViewModelBase
     {
         GameApiClient gameApiClient = new GameApiClient();
         await gameApiClient.UploadMetadataAsync(ServerGame);
+        
+        GoToGameLibrary();
+    }
+    
+    [RelayCommand]
+    private void GoToGameLibrary()
+    {
+        MainWindowViewModel.SwitchViews(new GameLibraryViewModel()
+        {
+            MainWindowViewModel = this.MainWindowViewModel
+        });
     }
     
     partial void OnCoverPreviewSourceChanged(string? value)
@@ -52,4 +63,5 @@ public partial class EditMetadataViewModel : ViewModelBase
     {
         GameTitle = $"{gameName} - Edit metadata";
     }
+
 }
