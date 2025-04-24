@@ -28,11 +28,8 @@
 
                 <StackPanel HorizontalAlignment="Left" Margin=" 0 30">
                     <TextBlock FontSize="30">Proton version</TextBlock>
-                    <ComboBox Width="500">
-                        <ComboBoxItem>Item 1</ComboBoxItem>
-                        <ComboBoxItem>Item 2</ComboBoxItem>
-                        <ComboBoxItem>Item 3</ComboBoxItem>
-                    </ComboBox>
+                    <ComboBox Width="500" ItemsSource="{Binding ProtonVersions}" 
+                              SelectedItem="{Binding ChosenProtonVersion}"/>
                 </StackPanel>
 
                 <StackPanel HorizontalAlignment="Left" Margin=" 0 30">
