@@ -7,7 +7,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Client.Views.EditMetadataView">
     <StackPanel>
-        <TextBlock FontSize="60" HorizontalAlignment="Center">Edit metadata - game name</TextBlock>
+        <TextBlock FontSize="60" Text="{Binding GameTitle}" HorizontalAlignment="Center"/>
 
         <Button HorizontalAlignment="Left" Margin="20 0 0 0">
             <Image Source="/Assets/Icons/arrow-back-up.png" MaxWidth="50" MaxHeight="50"></Image>
@@ -36,7 +36,8 @@
                             </TextBox>
                         </StackPanel>
 
-                        <Button Width="200" Margin="0 0 0 50">
+                        <Button Width="200" Margin="0 0 0 50" 
+                                Command="{Binding UploadMetadataCommand}">
                             <TextBlock FontSize="20">Upload metadata</TextBlock>
                         </Button>
                         
