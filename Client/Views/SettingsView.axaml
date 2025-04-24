@@ -47,6 +47,8 @@
                     <CheckBox Width="500" FontSize="30" 
                               IsChecked="{Binding DxvkEnabled}">Use DXVK</CheckBox>
                     <CheckBox Width="500" FontSize="30" 
+                              IsChecked="{Binding DxvkAsync}">Async DXVK</CheckBox>
+                    <CheckBox Width="500" FontSize="30" 
                               IsChecked="{Binding DxvkFramerateSet}">Set DXVK Framerate</CheckBox>
                     <TextBox Width="500" Watermark="60" Margin="0 10 0 0" 
                              Text="{Binding DxvkFramerate}" 
@@ -63,7 +65,8 @@
                               IsChecked="{Binding GamemodeEnabled}">Enable Gamemode</CheckBox>
                 </StackPanel>
                 
-                <Button Margin="0 100 0 0" Width="500">
+                <Button Margin="0 100 0 0" Width="500" 
+                        Command="{Binding SaveSettingsCommand}">
                         <TextBlock FontSize="45" HorizontalAlignment="Center">Save</TextBlock>
                 </Button>
                 

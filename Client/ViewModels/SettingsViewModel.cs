@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,6 +33,8 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _mangohudEnabled;
 
     [ObservableProperty] private bool _gamemodeEnabled;
+
+    [ObservableProperty] private bool _dxvkAsync;
     
     [ObservableProperty] private List<string> _exeFiles;
 
@@ -50,6 +53,7 @@ public partial class SettingsViewModel : ViewModelBase
         ESyncEnabled = protonSettings.ESyncEnabled;
         FSyncEnabled = protonSettings.FSyncEnabled;
         DxvkEnabled = protonSettings.DxvkEnabled;
+        DxvkAsync = protonSettings.DxvkAsync;
         DxvkFramerate = protonSettings.DxvkFramerate;
         DxvkFramerateSet = DxvkFramerate != null;
         MangohudEnabled = protonSettings.MangohudEnabled;
@@ -60,6 +64,24 @@ public partial class SettingsViewModel : ViewModelBase
         _ = SetMainExeFileAsync();
     }
 
+    [RelayCommand]
+    private async Task SaveSettings()
+    {
+        _protonSettings.PrefixDir = PrefixDir;
+        _protonSettings.ESyncEnabled = ESyncEnabled;
+        _protonSettings.FSyncEnabled = FSyncEnabled;
+        _protonSettings.DxvkEnabled = DxvkEnabled;
+        _protonSettings.DxvkAsync = DxvkAsync;
+        if (DxvkFramerateSet) _protonSettings.DxvkFramerate = DxvkFramerate;
+        _protonSettings.MangohudEnabled = MangohudEnabled;
+        _protonSettings.GamemodeEnabled = GamemodeEnabled;
+
+        ProtonManager protonManager = new ProtonManager();
+        await protonManager.SetProtonSettings(_protonSettings);
+        
+        GoToGameLibrary();
+    }
+    
     [RelayCommand]
     private void GoToGameLibrary()
     {

@@ -32,6 +32,15 @@ public class ProtonManager
         return protonVersions;
     }
 
+    public async Task SetProtonSettings(ProtonSettings protonSettings)
+    {
+        await using (ClientDbContext dbContext = new ClientDbContext())
+        {
+            dbContext.ProtonSettings.Update(protonSettings);
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
     public async Task<bool> CanLaunchGameAsync(Guid gameId)
     {
         using (ClientDbContext dbContext = new ClientDbContext())
