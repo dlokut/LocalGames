@@ -11,16 +11,16 @@ Only a Linux build of the client app is available, and requires users to install
 # Features
 
 Current:
-  • Uploading and downloading games through the client app
-  • Automatic metadata fetching through IGDB
-  • Manual metadata editing
-  • Automatic cloud save management - Client app finds game save files and uploads to server
-  • Playtime tracking
-  • Launching Windows games on Linux with Proton and Umu launcher
-  • Ability to configure Proton through environmnet variables
+  - Uploading and downloading games through the client app
+  - Automatic metadata fetching through IGDB
+  - Manual metadata editing
+  - Automatic cloud save management - Client app finds game save files and uploads to server
+  - Playtime tracking
+  - Launching Windows games on Linux with Proton and Umu launcher
+  - Ability to configure Proton through environmnet variables
 
 Planned:
-  • Windows build
-  • Docker image and Docker Compose template
-  • Mod management
-  • Better project name
+  - Windows build
+  - Docker image and Docker Compose template
+  - Mod management
+  - Better project name
